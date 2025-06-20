@@ -4,7 +4,7 @@ import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, Ion
 import { saveOutline } from 'ionicons/icons';
 import { validateMovie } from './validateMovie';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Movie {
     _id: string;
@@ -51,7 +51,7 @@ const UpdateMovie: React.FC = () => {
     });
 
     const fetchMovieDetails = useCallback(() => {
-        axios.get(`http://192.168.0.12:3000/api/movies/${movieId}`)
+        axios.get(`/api/movies/${movieId}`)
             .then((response) => {
                 if (response.status === 200) {
                     const { movie } = response.data;
@@ -84,7 +84,7 @@ const UpdateMovie: React.FC = () => {
                         formData.append('image', imageFile);
                         formData.append('oldImageUrl', movie.image);
 
-                        const uploadResponse = await axios.post('http://192.168.0.12:3000/api/movies/upload', formData, {
+                        const uploadResponse = await axios.post('/api/movies/upload', formData, {
                             headers: {
                                 'x-auth-token': token,
                                 'Content-Type': 'multipart/form-data'
@@ -96,7 +96,7 @@ const UpdateMovie: React.FC = () => {
                         }
                     }
 
-                    const updateResponse = await axios.put(`http://192.168.0.12:3000/api/movies/${movieId}`, { title: movie.title, description: movie.description, genre: movie.genre, director: movie.director, releaseDate: movie.releaseDate, duration: movie.duration, image: imageUrl, rating: movie.rating }, {
+                    const updateResponse = await axios.put(`/api/movies/${movieId}`, { title: movie.title, description: movie.description, genre: movie.genre, director: movie.director, releaseDate: movie.releaseDate, duration: movie.duration, image: imageUrl, rating: movie.rating }, {
                         headers: {
                             'x-auth-token': token,
                             'Content-Type': 'application/json'

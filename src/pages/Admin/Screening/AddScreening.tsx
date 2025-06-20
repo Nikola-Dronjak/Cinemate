@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonDatetime, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
 import { validateScreening } from './validateScreening';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Cinema {
     _id: string;
@@ -70,7 +70,7 @@ const AddScreening: React.FC = () => {
             try {
                 const token = localStorage.getItem('authToken');
                 if (token) {
-                    const response = await axios.get('http://192.168.0.12:3000/api/screenings/', {
+                    const response = await axios.get('/api/screenings/', {
                         params: { movieId, hallId, cinemaId: selectedCinema },
                         headers: {
                             'x-auth-token': token
@@ -116,7 +116,7 @@ const AddScreening: React.FC = () => {
         } else {
             const token = localStorage.getItem('authToken');
             if (token) {
-                axios.post('http://192.168.0.12:3000/api/screenings', screening, {
+                axios.post('/api/screenings', screening, {
                     headers: {
                         'x-auth-token': token,
                         'Content-Type': 'application/json'

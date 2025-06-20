@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, calendarOutline, createOutline, ticketOutline, trashOutline } from 'ionicons/icons';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Screening {
     _id: string;
@@ -32,7 +32,7 @@ const Hall: React.FC = () => {
     const fetchScreeningsForHall = useCallback(() => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`http://192.168.0.12:3000/api/halls/${hallId}`, {
+            axios.get(`/api/halls/${hallId}`, {
                 headers: {
                     'x-auth-token': token,
                 }
@@ -67,7 +67,7 @@ const Hall: React.FC = () => {
     function deleteScreening(screeningId: string) {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.delete(`http://192.168.0.12:3000/api/screenings/${screeningId}`, {
+            axios.delete(`/api/screenings/${screeningId}`, {
                 headers: {
                     'x-auth-token': token,
                 }

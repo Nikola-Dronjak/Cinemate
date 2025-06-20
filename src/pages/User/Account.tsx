@@ -4,7 +4,7 @@ import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol
 import { saveOutline, trashOutline } from 'ionicons/icons';
 import { validateRegister } from '../Register/validateRegister';
 import Header from '../../components/Header';
-import axios from 'axios';
+import axios from '../../api/AxiosInstance';
 
 interface User {
     _id: string;
@@ -39,7 +39,7 @@ const Account: React.FC = () => {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const { userId } = decodedToken;
-            axios.get(`http://192.168.0.12:3000/api/users/${userId}`, {
+            axios.get(`/api/users/${userId}`, {
                 headers: {
                     'x-auth-token': token,
                 }
@@ -69,7 +69,7 @@ const Account: React.FC = () => {
             if (token) {
                 const decodedToken = JSON.parse(atob(token.split('.')[1]));
                 const { userId } = decodedToken;
-                axios.put(`http://192.168.0.12:3000/api/users/${userId}`, user, {
+                axios.put(`/api/users/${userId}`, user, {
                     headers: {
                         'x-auth-token': token,
                     }
@@ -92,7 +92,7 @@ const Account: React.FC = () => {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const { userId } = decodedToken;
-            axios.delete(`http://192.168.0.12:3000/api/users/${userId}`, {
+            axios.delete(`/api/users/${userId}`, {
                 headers: {
                     'x-auth-token': token,
                 }

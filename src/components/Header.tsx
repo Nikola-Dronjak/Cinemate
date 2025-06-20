@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useHistory } from 'react-router';
 import { IonButton, IonButtons, IonIcon, IonPopover, IonTitle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
-import axios from 'axios';
+import axios from '../api/AxiosInstance';
 import { buildOutline, chevronDownOutline, exitOutline, personCircleOutline, ticketOutline } from 'ionicons/icons';
 
 interface HeaderProps {
@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const { userId } = decodedToken;
-            axios.get(`http://192.168.0.12:3000/api/users/${userId}`, {
+            axios.get(`/api/users/${userId}`, {
                 headers: {
                     'x-auth-token': token,
                 }

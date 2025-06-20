@@ -4,7 +4,7 @@ import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, Ion
 import { saveOutline } from 'ionicons/icons';
 import { validateHall } from './validateHall';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Cinema {
     _id: string;
@@ -48,7 +48,7 @@ const UpdateHall: React.FC = () => {
     const fetchHall = useCallback(() => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`http://192.168.0.12:3000/api/halls/${hallId}`, {
+            axios.get(`/api/halls/${hallId}`, {
                 headers: {
                     'x-auth-token': token
                 }
@@ -81,7 +81,7 @@ const UpdateHall: React.FC = () => {
         } else {
             const token = localStorage.getItem('authToken');
             if (token) {
-                axios.put(`http://192.168.0.12:3000/api/halls/${hallId}`, { name: hall.name, numberOfSeats: hall.numberOfSeats, cinemaId: hall.cinemaId }, {
+                axios.put(`/api/halls/${hallId}`, { name: hall.name, numberOfSeats: hall.numberOfSeats, cinemaId: hall.cinemaId }, {
                     headers: {
                         'x-auth-token': token,
                         'Content-Type': 'application/json'

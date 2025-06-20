@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonImg, IonPage, IonRow, useIonViewWillEnter } from '@ionic/react';
 import Header from '../../components/Header';
-import axios from 'axios';
+import axios from '../../api/AxiosInstance';
 
 interface Movie {
 	_id: string;
@@ -25,7 +25,7 @@ const Home: React.FC = () => {
 	});
 
 	const fetchMovies = useCallback(() => {
-		axios.get('http://192.168.0.12:3000/api/movies')
+		axios.get('/api/movies')
 			.then((response) => {
 				if (response.status === 200) {
 					setMovies(response.data);
@@ -55,7 +55,7 @@ const Home: React.FC = () => {
 							{movies.map(movie => (
 								<IonCol size="12" sizeSm="6" sizeMd="4" sizeLg="3" key={movie._id}>
 									<IonCard className='ion-padding'>
-										<IonImg src={`http://192.168.0.12:3000/images/${movie.image}`} alt={movie.title} />
+										<IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
 										<IonCardHeader>
 											<IonCardTitle>{movie.title}</IonCardTitle>
 											<IonCardSubtitle>Director: {movie.director}</IonCardSubtitle>

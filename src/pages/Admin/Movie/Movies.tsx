@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'ionicons/icons';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Movie {
     _id: string;
@@ -27,7 +27,7 @@ const Movies: React.FC = () => {
     });
 
     const fetchMovies = useCallback(() => {
-        axios.get('http://192.168.0.12:3000/api/movies')
+        axios.get('/api/movies')
             .then((response) => {
                 if (response.status === 200) {
                     setMovies(response.data);
@@ -46,7 +46,7 @@ const Movies: React.FC = () => {
     function deleteMovie(movieId: string) {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.delete(`http://192.168.0.12:3000/api/movies/${movieId}`, {
+            axios.delete(`/api/movies/${movieId}`, {
                 headers: {
                     'x-auth-token': token,
                 }

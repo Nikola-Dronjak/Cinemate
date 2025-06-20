@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { calendarOutline, star, ticketOutline } from 'ionicons/icons';
 import Header from '../../components/Header';
-import axios from 'axios';
+import axios from '../../api/AxiosInstance';
 
 interface Movie {
     _id: string;
@@ -56,7 +56,7 @@ const MovieDetails: React.FC = () => {
     });
 
     const fetchMovieDetails = useCallback(() => {
-        axios.get(`http://192.168.0.12:3000/api/movies/${movieId}`)
+        axios.get(`/api/movies/${movieId}`)
             .then((response) => {
                 if (response.status === 200) {
                     const { movie, screenings } = response.data;
@@ -91,7 +91,7 @@ const MovieDetails: React.FC = () => {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const { userId } = decodedToken;
-            axios.post('http://192.168.0.12:3000/api/reservations/', {
+            axios.post('/api/reservations/', {
                 userId: userId,
                 screeningId: screeningId
             }, {
@@ -126,7 +126,7 @@ const MovieDetails: React.FC = () => {
                                     <IonGrid>
                                         <IonRow>
                                             <IonCol size='12' sizeMd='6'>
-                                                <IonImg src={`http://192.168.0.12:3000/images/${movie.image}`} alt={movie.title} />
+                                                <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
                                             </IonCol>
                                             <IonCol size='12' sizeMd='6'>
                                                 <IonCardHeader>

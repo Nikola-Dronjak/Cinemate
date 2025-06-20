@@ -3,7 +3,7 @@ import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, Ion
 import { saveOutline } from 'ionicons/icons';
 import { validateCinema } from './validateCinema';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Cinema {
     _id: string;
@@ -38,7 +38,7 @@ const AddCinema: React.FC = () => {
         } else {
             const token = localStorage.getItem('authToken');
             if (token) {
-                axios.post('http://192.168.0.12:3000/api/cinemas', cinema, {
+                axios.post('/api/cinemas', cinema, {
                     headers: {
                         'x-auth-token': token,
                         'Content-Type': 'application/json'

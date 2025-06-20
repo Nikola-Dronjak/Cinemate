@@ -3,7 +3,7 @@ import { useHistory } from 'react-router';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow } from '@ionic/react';
 import { validateLogin } from './validateLogin';
 import Header from '../../components/Header';
-import axios from 'axios';
+import axios from '../../api/AxiosInstance';
 
 interface User {
     _id: string;
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {
-            axios.post('http://192.168.0.12:3000/api/login', user)
+            axios.post('/api/login', user)
                 .then((response) => {
                     if (response.status === 200) {
                         const token = response.data;

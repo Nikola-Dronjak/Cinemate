@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonDatetime, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
 import { validateScreening } from './validateScreening';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Cinema {
     _id: string;
@@ -68,7 +68,7 @@ const UpdateScreening: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://192.168.0.12:3000/api/screenings/${screeningId}`);
+                const response = await axios.get(`/api/screenings/${screeningId}`);
                 const { screening, movie, hall, cinema, cinemas, halls, movies } = response.data;
 
                 setScreening({ movieId: screening.movieId, hallId: screening.hallId, date: screening.date, time: screening.time });
@@ -93,7 +93,7 @@ const UpdateScreening: React.FC = () => {
                 try {
                     const token = localStorage.getItem('authToken');
                     if (token) {
-                        const response = await axios.get(`http://192.168.0.12:3000/api/halls/cinema/${selectedCinema}`, {
+                        const response = await axios.get(`/api/halls/cinema/${selectedCinema}`, {
                             headers: {
                                 'x-auth-token': token
                             }
@@ -120,7 +120,7 @@ const UpdateScreening: React.FC = () => {
         } else {
             const token = localStorage.getItem('authToken');
             if (token) {
-                axios.put(`http://192.168.0.12:3000/api/screenings/${screeningId}`, screening, {
+                axios.put(`/api/screenings/${screeningId}`, screening, {
                     headers: {
                         'x-auth-token': token,
                         'Content-Type': 'application/json'

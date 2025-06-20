@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'ionicons/icons';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Cinema {
     _id: string;
@@ -39,7 +39,7 @@ const Halls: React.FC = () => {
     const fetchHalls = useCallback(() => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`http://192.168.0.12:3000/api/halls/cinema/${cinemaId}`, {
+            axios.get(`/api/halls/cinema/${cinemaId}`, {
                 headers: {
                     'x-auth-token': token,
                 }
@@ -66,7 +66,7 @@ const Halls: React.FC = () => {
     function deleteHall(hallId: string) {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.delete(`http://192.168.0.12:3000/api/halls/${hallId}`, {
+            axios.delete(`/api/halls/${hallId}`, {
                 headers: {
                     'x-auth-token': token,
                 }

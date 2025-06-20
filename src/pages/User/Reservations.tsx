@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import Header from '../../components/Header';
-import axios from 'axios';
+import axios from '../../api/AxiosInstance';
 
 interface Reservation {
     _id: string;
@@ -35,7 +35,7 @@ const Reservations: React.FC = () => {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const { userId } = decodedToken;
-            axios.get(`http://192.168.0.12:3000/api/reservations/user/${userId}`, {
+            axios.get(`/api/reservations/user/${userId}`, {
                 headers: {
                     'x-auth-token': token,
                 }
@@ -69,7 +69,7 @@ const Reservations: React.FC = () => {
     function deleteReservation(reservationId: string) {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.delete(`http://192.168.0.12:3000/api/reservations/${reservationId}`, {
+            axios.delete(`/api/reservations/${reservationId}`, {
                 headers: {
                     'x-auth-token': token,
                 }

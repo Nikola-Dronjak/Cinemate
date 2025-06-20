@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonPage, IonRow, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, calendarOutline, createOutline, star, ticketOutline, trashOutline } from 'ionicons/icons';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Movie {
     _id: string;
@@ -56,7 +56,7 @@ const Movie: React.FC = () => {
     });
 
     const fetchMovieDetails = useCallback(() => {
-        axios.get(`http://192.168.0.12:3000/api/movies/${movieId}`)
+        axios.get(`/api/movies/${movieId}`)
             .then((response) => {
                 if (response.status === 200) {
                     const { movie, screenings } = response.data;
@@ -85,7 +85,7 @@ const Movie: React.FC = () => {
     function deleteScreening(screeningId: string) {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.delete(`http://192.168.0.12:3000/api/screenings/${screeningId}`, {
+            axios.delete(`/api/screenings/${screeningId}`, {
                 headers: {
                     'x-auth-token': token,
                 }
@@ -117,7 +117,7 @@ const Movie: React.FC = () => {
                                     <IonGrid>
                                         <IonRow>
                                             <IonCol size='12' sizeMd='6'>
-                                                <IonImg src={`http://192.168.0.12:3000/images/${movie.image}`} alt={movie.title} />
+                                                <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
                                             </IonCol>
                                             <IonCol size='12' sizeMd='6'>
                                                 <IonCardHeader>

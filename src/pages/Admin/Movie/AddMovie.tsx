@@ -3,7 +3,7 @@ import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, Ion
 import { saveOutline } from 'ionicons/icons';
 import { validateMovie } from './validateMovie';
 import Header from '../../../components/Header';
-import axios from 'axios';
+import axios from '../../../api/AxiosInstance';
 
 interface Movie {
     _id: string;
@@ -49,7 +49,7 @@ const AddMovie: React.FC = () => {
         formData.append('image', file);
 
         const token = localStorage.getItem('authToken');
-        const response = await axios.post('http://192.168.0.12:3000/api/movies/upload', formData, {
+        const response = await axios.post('/api/movies/upload', formData, {
             headers: {
                 'x-auth-token': token,
                 'Content-Type': 'multipart/form-data'
@@ -80,7 +80,7 @@ const AddMovie: React.FC = () => {
                     }
                 }
 
-                axios.post('http://192.168.0.12:3000/api/movies', movie, {
+                axios.post('/api/movies', movie, {
                     headers: {
                         'x-auth-token': token,
                         'Content-Type': 'application/json'
