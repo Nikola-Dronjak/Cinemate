@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonToast } from '@ionic/react';
 import { validateLogin } from './validateLogin';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
@@ -19,6 +19,7 @@ const Login: React.FC = () => {
         password: ''
     });
 
+    const [errorMessage, setErrorMessage] = useState('');
     const [validationErrors, setValidationErrors] = useState<{
         email?: string;
         password?: string
@@ -37,6 +38,7 @@ const Login: React.FC = () => {
         } else {
             axios.post('/api/login', user)
                 .then((response) => {
+                    console.log(response.data + "asdasd");
                     if (response.status === 200) {
                         const token = response.data;
                         const decodedToken = JSON.parse(atob(token.split('.')[1]));
@@ -48,10 +50,10 @@ const Login: React.FC = () => {
                         } else {
                             history.push('/home');
                         }
-                    }
+                    } 
                 })
                 .catch((err) => {
-                    setValidationErrors(err.response.data);
+                    setErrorMessage(err.response.data);
                     console.log(err.response.data);
                 });
         }
@@ -82,6 +84,14 @@ const Login: React.FC = () => {
                                         </IonRow>
                                     </form>
                                     <p>Dont have an account? <a href='/register'>Register now!</a></p>
+                                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                                        position: 'fixed',
+                                        top: '10px',
+                                        right: '10px',
+                                        width: 'auto',
+                                        maxWidth: '300px',
+                                        zIndex: 9999
+                                    }} />
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>

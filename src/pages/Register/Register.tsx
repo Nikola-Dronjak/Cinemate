@@ -33,7 +33,7 @@ const Register: React.FC = () => {
 
         setValidationErrors({});
 
-        const validationErrors = await validateRegister(user);
+        const validationErrors = await validateRegister(user, false);
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {

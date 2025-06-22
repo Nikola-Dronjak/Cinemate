@@ -2,7 +2,7 @@ export async function validateRegister(user: {
     username: string,
     email: string,
     password: string
-}) {
+}, isUpdate: boolean) {
     const errors: {
         username?: string;
         email?: string;
@@ -26,12 +26,20 @@ export async function validateRegister(user: {
         errors.email = "The email cannot be larger than 255 characters."
     }
 
-    if (!user.password || user.password.length === 0) {
-        errors.password = "The password field cannot be empty."
-    } else if (user.password.length < 8) {
-        errors.password = "The password has to be at least 8 characters."
-    } else if (user.password.length > 255) {
-        errors.password = "The password cannot be larger than 255 characters."
+    if (isUpdate) {
+        if (user.password && user.password.length < 8) {
+            errors.password = "The password has to be at least 8 characters."
+        } else if (user.password && user.password.length > 255) {
+            errors.password = "The password cannot be larger than 255 characters."
+        }
+    } else {
+        if (!user.password || user.password.length === 0) {
+            errors.password = "The password field cannot be empty."
+        } else if (user.password.length < 8) {
+            errors.password = "The password has to be at least 8 characters."
+        } else if (user.password.length > 255) {
+            errors.password = "The password cannot be larger than 255 characters."
+        }
     }
 
     return errors;

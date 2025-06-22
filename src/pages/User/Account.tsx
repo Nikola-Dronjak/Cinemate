@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useHistory } from 'react-router';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonInput, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { saveOutline, trashOutline } from 'ionicons/icons';
 import { validateRegister } from '../Register/validateRegister';
 import Header from '../../components/Header';
@@ -12,16 +13,21 @@ interface User {
     email: string;
     password: string;
     isAdmin: boolean;
+    profilePicture: string;
 }
 
 const Account: React.FC = () => {
     const [user, setUser] = useState<Omit<User, '_id' | 'isAdmin'>>({
         username: '',
         email: '',
-        password: ''
+        password: '',
+        profilePicture: ''
     });
 
+    const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+
     const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const [validationErrors, setValidationErrors] = useState<{
         username?: string;
         email?: string;
@@ -46,8 +52,8 @@ const Account: React.FC = () => {
             })
                 .then((response) => {
                     if (response.status === 200) {
-                        const { username, email, password } = response.data;
-                        setUser({ username, email, password })
+                        const { username, email, password, profilePicture } = response.data;
+                        setUser({ username, email, password, profilePicture })
                     }
                 })
                 .catch((err) => {
@@ -56,12 +62,55 @@ const Account: React.FC = () => {
         }
     }, []);
 
+    const uploadProfilePicture = async () => {
+        try {
+            const photo = await Camera.getPhoto({
+                quality: 90,
+                allowEditing: true,
+                resultType: CameraResultType.Uri, // returns a file URI for use with fetch
+                source: CameraSource.Prompt // gives user the choice between Camera or Photos
+            });
+
+            if (photo.webPath) {
+                setProfilePicturePreview(photo.webPath);
+
+                const response = await fetch(photo.webPath);
+                const blob = await response.blob();
+                const file = new File([blob], "profile.jpg", { type: blob.type });
+
+                const formData = new FormData();
+                formData.append("image", file);
+
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    await axios.post('/api/users/uploadPfp', formData, {
+                        headers: {
+                            'x-auth-token': token,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                        .then((response) => {
+                            if (response.status === 200) {
+                                setSuccessMessage("Profile picture successfully added.");
+                            }
+                        })
+                        .catch((err) => {
+                            setErrorMessage(err.response.data);
+                            console.log(err.response.data);
+                        });
+                }
+            }
+        } catch (err) {
+            console.error('Error uploading profile image:', err);
+        }
+    };
+
     const updateUser = async (e: React.FormEvent) => {
         e.preventDefault();
 
         setValidationErrors({});
 
-        const validationErrors = await validateRegister(user);
+        const validationErrors = await validateRegister(user, true);
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {
@@ -117,7 +166,7 @@ const Account: React.FC = () => {
             <IonHeader>
                 <Header title='Cinemate' />
             </IonHeader>
-            <IonContent className='ion-padding' scrollY={false}>
+            <IonContent className='ion-padding'>
                 <IonGrid fixed>
                     <IonRow className='ion-justify-content-center'>
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
@@ -126,6 +175,36 @@ const Account: React.FC = () => {
                                     <IonCardTitle>User information</IonCardTitle>
                                 </IonCardHeader>
                                 <IonCardContent>
+                                    {profilePicturePreview || user.profilePicture ? (
+                                        <IonImg
+                                            src={
+                                                profilePicturePreview
+                                                    ? profilePicturePreview
+                                                    : `${import.meta.env.VITE_SERVER_ADDRESS}/images/${user.profilePicture}`
+                                            }
+                                            alt="Profile Picture"
+                                            style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '12px', marginBottom: '1rem' }}
+                                        />
+                                    ) : (
+                                        <div
+                                            style={{
+                                                width: '100%',
+                                                height: '200px',
+                                                backgroundColor: '#f0f0f0',
+                                                border: '2px dashed #ccc',
+                                                borderRadius: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                marginBottom: '1rem'
+                                            }}
+                                        >
+                                            <IonIcon icon="image-outline" size="large" />
+                                        </div>
+                                    )}
+                                    <IonButton className='ion-margin-bottom' expand='block' onClick={uploadProfilePicture}>
+                                        Upload Profile Picture
+                                    </IonButton>
                                     <form onSubmit={updateUser}>
                                         <IonInput label='Username' type='text' value={user.username} placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
                                         {validationErrors.username && <span style={{ color: 'red' }}>{validationErrors.username}</span>}
@@ -139,6 +218,14 @@ const Account: React.FC = () => {
                                         </IonRow>
                                     </form>
                                     <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
+                                        position: 'fixed',
+                                        top: '10px',
+                                        right: '10px',
+                                        width: 'auto',
+                                        maxWidth: '300px',
+                                        zIndex: 9999
+                                    }} />
+                                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
                                         position: 'fixed',
                                         top: '10px',
                                         right: '10px',
