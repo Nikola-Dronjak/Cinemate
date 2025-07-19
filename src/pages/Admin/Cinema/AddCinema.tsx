@@ -45,13 +45,13 @@ const AddCinema: React.FC = () => {
                     }
                 })
                     .then((response) => {
-                        if (response.status === 200) {
+                        if (response.status === 201) {
                             setSuccessMessage("Cinema successfully added.");
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data);
-                        console.log(err.response.data);
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
                     });
             }
         }

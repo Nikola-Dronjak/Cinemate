@@ -42,8 +42,8 @@ const UpdateCinema: React.FC = () => {
                 }
             })
             .catch((err) => {
-                setErrorMessage(err.response?.data);
-                console.error(err.response?.data || err.message);
+                setErrorMessage(err.response.data.message);
+                console.error(err.response.data.message || err.message);
             });
     }, [cinemaId]);
 
@@ -70,8 +70,8 @@ const UpdateCinema: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data);
-                        console.log(err.response.data);
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message)
                     });
             }
         }
