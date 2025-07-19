@@ -5,6 +5,13 @@ import { addCircleOutline, calendarOutline, createOutline, ticketOutline, trashO
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
 
+interface Hall {
+    _id: string,
+    name: string,
+    numberOfSeats: number,
+    cinemaId: string
+}
+
 interface Screening {
     _id: string;
     date: string;
@@ -18,9 +25,17 @@ interface Screening {
 
 const Hall: React.FC = () => {
     const { hallId } = useParams<{ hallId: string }>();
-    const [hallName, setHallName] = useState('');
+    const [hall, setHall] = useState<Omit<Hall, '_id'>>({
+        name: '',
+        numberOfSeats: NaN,
+        cinemaId: ''
+    })
 
     const [screenings, setScreenings] = useState<Screening[]>([]);
+
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages] = useState(1);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -32,26 +47,55 @@ const Hall: React.FC = () => {
     const fetchScreeningsForHall = useCallback(() => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`/api/halls/${hallId}`, {
+            axios.get(`/api/halls/${hallId}/screenings?page=${page}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
                 }
             })
-                .then((response) => {
+                .then(async (response) => {
                     if (response.status === 200) {
-                        const { hall, screenings } = response.data;
-                        setHallName(hall.name);
-                        setScreenings(screenings);
-                        setErrorMessage('');
+                        const screeningsRaw = response.data.screeningsForHall;
+
+                        const screeningsWithTitles = await Promise.all(
+                            screeningsRaw.map(async (screening: any) => {
+                                try {
+                                    const movie = await axios.get(`/api/movies/${screening.movieId}`);
+                                    const movieTitle = movie.status === 200 ? movie.data.title : 'Unknown';
+                                    return {
+                                        ...screening,
+                                        movieTitle,
+                                    };
+                                } catch (err) {
+                                    console.error(`Error fetching movie ${screening.movieId}`, err);
+                                    return {
+                                        ...screening,
+                                        movieTitle: 'Unknown',
+                                    };
+                                }
+                            })
+                        );
+
+                        setScreenings(screeningsWithTitles);
                     } else if (response.status === 404) {
-                        setHallName('');
                         setScreenings([]);
-                        setErrorMessage(response.data);
+                        setErrorMessage(response.data.message);
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response?.data);
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
+                });
+
+            axios.get(`/api/halls/${hallId}`)
+                .then((response) => {
+                    if (response.status === 200) {
+                        const { name, numberOfSeats, cinemaId } = response.data;
+                        setHall({ name, numberOfSeats, cinemaId });
+                    }
+                })
+                .catch((err) => {
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }, [hallId]);
@@ -73,7 +117,7 @@ const Hall: React.FC = () => {
                 }
             })
                 .then((response) => {
-                    if (response.status === 200) {
+                    if (response.status === 204) {
                         setSuccessMessage("Screening successfully removed.");
                         fetchScreeningsForHall();
                     }
@@ -93,7 +137,7 @@ const Hall: React.FC = () => {
             <IonContent className='ion-padding'>
                 <IonCard className='ion-padding'>
                     <IonToolbar>
-                        <IonCardTitle>Screenings for {hallName}</IonCardTitle>
+                        <IonCardTitle>Screenings for {hall.name}</IonCardTitle>
                         <IonButtons slot="end">
                             <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
                         </IonButtons>
@@ -117,6 +161,11 @@ const Hall: React.FC = () => {
                         ))}
                     </IonCardContent>
                 </IonCard>
+                <div className="ion-text-center">
+                    <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                    <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                    <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                </div>
                 <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                     position: 'fixed',
                     top: '10px',

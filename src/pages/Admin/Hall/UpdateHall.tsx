@@ -48,24 +48,28 @@ const UpdateHall: React.FC = () => {
     const fetchHall = useCallback(() => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`/api/halls/${hallId}`, {
-                headers: {
-                    'x-auth-token': token
-                }
-            })
+            axios.get(`/api/halls/${hallId}`)
                 .then((response) => {
                     if (response.status === 200) {
-                        const { hall, cinema } = response.data;
-                        setHall(hall);
-                        setCinema(cinema);
-                    } else if (response.status === 404) {
-                        setHall({ name: '', numberOfSeats: NaN, cinemaId: '' });
-                        setCinema({ name: '', address: '', city: '' });
+                        const { name, numberOfSeats, cinemaId } = response.data;
+                        setHall({ name, numberOfSeats, cinemaId });
+
+                        axios.get(`/api/cinemas/${cinemaId}`)
+                            .then((response) => {
+                                if (response.status === 200) {
+                                    const { name, address, city } = response.data;
+                                    setCinema({ name, address, city });
+                                }
+                            })
+                            .catch((err) => {
+                                setErrorMessage(err.response.data.message);
+                                console.error(err.response.data.message || err.message);
+                            });
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data);
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }, [hallId]);
@@ -93,8 +97,8 @@ const UpdateHall: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data);
-                        console.log(err.response.data);
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
                     });
             }
         }

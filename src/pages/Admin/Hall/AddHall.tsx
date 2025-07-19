@@ -49,14 +49,13 @@ const AddHall: React.FC = () => {
         axios.get(`/api/cinemas/${cinemaId}`)
             .then((response) => {
                 if (response.status === 200) {
-                    setCinema(response.data);
-                } else if (response.status === 404) {
-                    setCinema({ name: '', address: '', city: '' });
+                    const { name, address, city } = response.data;
+                    setCinema({ name, address, city });
                 }
             })
             .catch((err) => {
-                setErrorMessage(err.response.data);
-                console.log(err.response.data);
+                setErrorMessage(err.response.data.message);
+                console.error(err.response.data.message || err.message);
             });
     }, [cinemaId]);
 
@@ -78,13 +77,13 @@ const AddHall: React.FC = () => {
                     }
                 })
                     .then((response) => {
-                        if (response.status === 200) {
+                        if (response.status === 201) {
                             setSuccessMessage("Hall successfully added.");
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data);
-                        console.log(err.response.data);
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
                     });
             }
         }

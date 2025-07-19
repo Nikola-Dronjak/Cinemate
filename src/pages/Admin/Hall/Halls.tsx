@@ -29,6 +29,10 @@ const Halls: React.FC = () => {
 
     const [halls, setHalls] = useState<Hall[]>([]);
 
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages] = useState(1);
+
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -39,26 +43,41 @@ const Halls: React.FC = () => {
     const fetchHalls = useCallback(() => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`/api/halls/cinema/${cinemaId}`, {
+            axios.get(`/api/cinemas/${cinemaId}/halls?page=${page}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
                 }
             })
                 .then((response) => {
                     if (response.status === 200) {
-                        const { cinema, halls } = response.data;
-                        setCinema(cinema);
-                        setHalls(halls);
+                        const cleanHalls: Hall[] = response.data.halls.map((hall: any) => ({
+                            _id: hall._id,
+                            name: hall.name,
+                            numberOfSeats: hall.numberOfSeats,
+                            cinemaId: hall.cinemaId
+                        }));
+                        setHalls(cleanHalls);
                         setErrorMessage('');
                     } else if (response.status === 404) {
-                        setCinema({ name: '', address: '', city: '' });
                         setHalls([]);
-                        setErrorMessage(response.data);
+                        setErrorMessage(response.data.message);
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response?.data);
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
+                });
+
+            axios.get(`/api/cinemas/${cinemaId}`)
+                .then((response) => {
+                    if (response.status === 200) {
+                        const { name, address, city } = response.data;
+                        setCinema({ name, address, city });
+                    }
+                })
+                .catch((err) => {
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }, [cinemaId]);
@@ -72,14 +91,14 @@ const Halls: React.FC = () => {
                 }
             })
                 .then((response) => {
-                    if (response.status === 200) {
+                    if (response.status === 204) {
                         setSuccessMessage("Hall successfully removed.");
                         fetchHalls();
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response?.data);
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }
@@ -114,6 +133,11 @@ const Halls: React.FC = () => {
                         ))}
                     </IonCardContent>
                 </IonCard>
+                <div className="ion-text-center">
+                    <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                    <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                    <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                </div>
                 <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                     position: 'fixed',
                     top: '10px',
