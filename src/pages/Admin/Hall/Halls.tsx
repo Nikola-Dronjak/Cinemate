@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'ionicons/icons';
@@ -21,7 +21,7 @@ interface Hall {
 
 const Halls: React.FC = () => {
     const { cinemaId } = useParams<{ cinemaId: string }>();
-    const [cinema, setCinema] = useState<Omit<Cinema, '_id'>>({
+    const [cinema, setCinema,] = useState<Omit<Cinema, '_id'>>({
         name: '',
         address: '',
         city: ''
@@ -31,16 +31,20 @@ const Halls: React.FC = () => {
 
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
-    const [totalPages] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    useEffect(() => {
+        fetchHalls(page);
+    }, [page]);
+
     useIonViewWillEnter(() => {
-        fetchHalls();
+        fetchHalls(page);
     });
 
-    const fetchHalls = useCallback(() => {
+    const fetchHalls = (currentPage: number = page) => {
         const token = localStorage.getItem('authToken');
         if (token) {
             axios.get(`/api/cinemas/${cinemaId}/halls?page=${page}&limit=${limit}`, {
@@ -56,6 +60,7 @@ const Halls: React.FC = () => {
                             numberOfSeats: hall.numberOfSeats,
                             cinemaId: hall.cinemaId
                         }));
+                        setTotalPages(response.data.totalPages);
                         setHalls(cleanHalls);
                         setErrorMessage('');
                     } else if (response.status === 404) {
@@ -80,7 +85,7 @@ const Halls: React.FC = () => {
                     console.error(err.response.data.message || err.message);
                 });
         }
-    }, [cinemaId]);
+    };
 
     function deleteHall(hallId: string) {
         const token = localStorage.getItem('authToken');
@@ -93,7 +98,11 @@ const Halls: React.FC = () => {
                 .then((response) => {
                     if (response.status === 204) {
                         setSuccessMessage("Hall successfully removed.");
-                        fetchHalls();
+                        if (halls.length === 1 && page > 1) {
+                            setPage(prev => prev - 1);
+                        } else {
+                            fetchHalls(page);
+                        }
                     }
                 })
                 .catch((err) => {

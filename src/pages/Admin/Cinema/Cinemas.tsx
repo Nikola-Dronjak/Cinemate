@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, pinOutline, searchOutline, trashOutline } from 'ionicons/icons';
 import Header from '../../../components/Header';
@@ -16,16 +16,20 @@ const Cinemas: React.FC = () => {
 
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
-    const [totalPages] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    useEffect(() => {
+        fetchCinemas(page);
+    }, [page]);
+
     useIonViewWillEnter(() => {
-        fetchCinemas();
+        fetchCinemas(page);
     });
 
-    const fetchCinemas = useCallback(() => {
+    const fetchCinemas = (currentPage: number = page) => {
         const token = localStorage.getItem('authToken');
         if (token) {
             axios.get(`/api/cinemas?page=${page}&limit=${limit}`, {
@@ -41,6 +45,7 @@ const Cinemas: React.FC = () => {
                             address: cinema.address,
                             city: cinema.city
                         }));
+                        setTotalPages(response.data.totalPages);
                         setCinemas(cleanCinemas);
                         setErrorMessage('');
                     } else if (response.status === 404) {
@@ -53,7 +58,7 @@ const Cinemas: React.FC = () => {
                     console.error(err.response.data.message || err.message);
                 });
         }
-    }, [page, limit]);
+    };
 
     function deleteCinema(cinemaId: string) {
         const token = localStorage.getItem('authToken');
@@ -66,7 +71,11 @@ const Cinemas: React.FC = () => {
                 .then((response) => {
                     if (response.status === 204) {
                         setSuccessMessage("Cinema successfully removed.");
-                        fetchCinemas();
+                        if (cinemas.length === 1 && page > 1) {
+                            setPage(prev => prev - 1);
+                        } else {
+                            fetchCinemas(page);
+                        }
                     }
                 })
                 .catch((err) => {

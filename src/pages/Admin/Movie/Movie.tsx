@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonPage, IonRow, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, calendarOutline, createOutline, star, ticketOutline, trashOutline } from 'ionicons/icons';
@@ -46,16 +46,20 @@ const Movie: React.FC = () => {
 
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
-    const [totalPages] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    useEffect(() => {
+        fetchScreeningsOfMovie(page);
+    }, [page]);
+
     useIonViewWillEnter(() => {
-        fetchScreeningsOfMovie();
+        fetchScreeningsOfMovie(page);
     });
 
-    const fetchScreeningsOfMovie = useCallback(() => {
+    const fetchScreeningsOfMovie = (currentPage: number = page) => {
         const token = localStorage.getItem('authToken');
         if (token) {
             axios.get(`/api/movies/${movieId}/screenings?page=${page}&limit=${limit}`, {
@@ -95,7 +99,7 @@ const Movie: React.FC = () => {
                                 };
                             })
                         );
-
+                        setTotalPages(response.data.totalPages);
                         setScreenings(screeningsWithHallAndCinemaNames);
                     } else if (response.status === 404) {
                         setScreenings([]);
@@ -119,7 +123,7 @@ const Movie: React.FC = () => {
                     console.error(err.response.data.message || err.message);
                 });
         }
-    }, [movieId]);
+    };
 
     const isFutureScreening = (screeningDate: string) => {
         const today = new Date();
@@ -140,7 +144,11 @@ const Movie: React.FC = () => {
                 .then((response) => {
                     if (response.status === 204) {
                         setSuccessMessage("Screening successfully removed.");
-                        fetchScreeningsOfMovie();
+                        if (screenings.length === 1 && page > 1) {
+                            setPage(prev => prev - 1);
+                        } else {
+                            fetchScreeningsOfMovie(page);
+                        }
                     }
                 })
                 .catch((err) => {
@@ -209,6 +217,11 @@ const Movie: React.FC = () => {
                             </IonCard>
                         ))}
                     </IonCardContent>
+                    <div className="ion-text-center">
+                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                    </div>
                 </IonCard>
                 <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                     position: 'fixed',
