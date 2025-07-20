@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'ionicons/icons';
 import Header from '../../../components/Header';
@@ -19,29 +19,49 @@ interface Movie {
 const Movies: React.FC = () => {
     const [movies, setMovies] = useState<Movie[]>([]);
 
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    useEffect(() => {
+        fetchMovies(page);
+    }, [page]);
+
     useIonViewWillEnter(() => {
-        fetchMovies();
+        fetchMovies(page);
     });
 
-    const fetchMovies = useCallback(() => {
-        axios.get('/api/movies')
+    const fetchMovies = (currentPage: number = page) => {
+        axios.get(`/api/movies?page=${page}&limit=${limit}`)
             .then((response) => {
                 if (response.status === 200) {
-                    setMovies(response.data);
+                    const cleanMovies: Movie[] = response.data.movies.map((movie: any) => ({
+                        _id: movie._id,
+                        title: movie.title,
+                        description: movie.description,
+                        genre: movie.genre,
+                        director: movie.director,
+                        releaseDate: movie.releaseDate,
+                        duration: movie.duration,
+                        image: movie.image,
+                        rating: movie.rating
+                    }));
+                    setTotalPages(response.data.totalPages);
+                    setMovies(cleanMovies);
                     setErrorMessage('');
                 } else if (response.status === 404) {
                     setMovies([]);
-                    setErrorMessage(response.data);
+                    setErrorMessage(response.data.message);
                 }
             })
             .catch((err) => {
-                setErrorMessage(err.response?.data);
-                console.log(err.response?.data || err.message);
+                setErrorMessage(err.response.data.message);
+                console.error(err.response.data.message || err.message);
             });
-    }, []);
+    };
 
     function deleteMovie(movieId: string) {
         const token = localStorage.getItem('authToken');
@@ -52,14 +72,18 @@ const Movies: React.FC = () => {
                 }
             })
                 .then((response) => {
-                    if (response.status === 200) {
+                    if (response.status === 204) {
                         setSuccessMessage("Movie successfully removed.");
-                        fetchMovies();
+                        if (movies.length === 1 && page > 1) {
+                            setPage(prev => prev - 1);
+                        } else {
+                            fetchMovies(page);
+                        }
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response?.data);
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }
@@ -85,6 +109,11 @@ const Movies: React.FC = () => {
                         <IonButton onClick={() => deleteMovie(movie._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
                     </IonCard>
                 ))}
+                <div className="ion-text-center">
+                    <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                    <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                    <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                </div>
                 <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                     position: 'fixed',
                     top: '10px',

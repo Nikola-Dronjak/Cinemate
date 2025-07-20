@@ -44,21 +44,6 @@ const AddMovie: React.FC = () => {
         rating?: string;
     }>({});
 
-    async function uploadImage(file: File): Promise<string> {
-        const formData = new FormData();
-        formData.append('image', file);
-
-        const token = localStorage.getItem('authToken');
-        const response = await axios.post('/api/movies/upload', formData, {
-            headers: {
-                'x-auth-token': token,
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-
-        return response.data.imageUrl;
-    }
-
     async function addMovie(e: React.FormEvent) {
         e.preventDefault();
 
@@ -68,32 +53,35 @@ const AddMovie: React.FC = () => {
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {
+            const formData = new FormData();
+            formData.append('title', movie.title);
+            formData.append('description', movie.description);
+            formData.append('genre', movie.genre);
+            formData.append('director', movie.director);
+            formData.append('releaseDate', movie.releaseDate);
+            formData.append('duration', movie.duration.toString());
+            formData.append('rating', movie.rating.toString());
+
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
             const token = localStorage.getItem('authToken');
             if (token) {
-                if (imageFile) {
-                    try {
-                        const imageUrl = await uploadImage(imageFile);
-                        movie.image = imageUrl;
-                    } catch (err) {
-                        console.log('Image upload failed:', err);
-                        return;
-                    }
-                }
-
-                axios.post('/api/movies', movie, {
+                axios.post('/api/movies', formData, {
                     headers: {
                         'x-auth-token': token,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'multipart/form-data'
                     }
                 })
                     .then((response) => {
-                        if (response.status === 200) {
+                        if (response.status === 201) {
                             setSuccessMessage("Movie successfully added.");
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data);
-                        console.log(err.response.data);
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
                     });
             }
         }

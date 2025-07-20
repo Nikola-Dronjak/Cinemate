@@ -54,15 +54,13 @@ const UpdateMovie: React.FC = () => {
         axios.get(`/api/movies/${movieId}`)
             .then((response) => {
                 if (response.status === 200) {
-                    const { movie } = response.data;
-                    setMovie(movie);
-                } else if (response.status === 404) {
-                    setMovie({ title: '', description: '', genre: '', director: '', releaseDate: '', duration: NaN, image: '', rating: NaN });
+                    const { title, description, genre, director, releaseDate, duration, image, rating } = response.data;
+                    setMovie({ title, description, genre, director, releaseDate, duration, image, rating });
                 }
             })
             .catch((err) => {
-                setErrorMessage(err.response.data);
-                console.log(err.response?.data || err.message);
+                setErrorMessage(err.response.data.message);
+                console.error(err.response.data.message || err.message);
             });
     }, [movieId]);
 
@@ -75,40 +73,37 @@ const UpdateMovie: React.FC = () => {
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {
+            const formData = new FormData();
+            formData.append('title', movie.title);
+            formData.append('description', movie.description);
+            formData.append('genre', movie.genre);
+            formData.append('director', movie.director);
+            formData.append('releaseDate', movie.releaseDate);
+            formData.append('duration', movie.duration.toString());
+            formData.append('rating', movie.rating.toString());
+            formData.append('image', movie.image);
+
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
             const token = localStorage.getItem('authToken');
             if (token) {
-                try {
-                    let imageUrl = movie.image;
-                    if (imageFile) {
-                        const formData = new FormData();
-                        formData.append('image', imageFile);
-                        formData.append('oldImageUrl', movie.image);
-
-                        const uploadResponse = await axios.post('/api/movies/upload', formData, {
-                            headers: {
-                                'x-auth-token': token,
-                                'Content-Type': 'multipart/form-data'
-                            }
-                        });
-
-                        if (uploadResponse.status === 200) {
-                            imageUrl = uploadResponse.data.imageUrl;
-                        }
+                await axios.put(`/api/movies/${movieId}`, formData, {
+                    headers: {
+                        'x-auth-token': token,
+                        'Content-Type': 'multipart/form-data'
                     }
-
-                    const updateResponse = await axios.put(`/api/movies/${movieId}`, { title: movie.title, description: movie.description, genre: movie.genre, director: movie.director, releaseDate: movie.releaseDate, duration: movie.duration, image: imageUrl, rating: movie.rating }, {
-                        headers: {
-                            'x-auth-token': token,
-                            'Content-Type': 'application/json'
+                })
+                    .then((response) => {
+                        if (response.status === 200) {
+                            setSuccessMessage("Movie successfully updated.");
                         }
+                    })
+                    .catch((err) => {
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
                     });
-
-                    if (updateResponse.status === 200) {
-                        setSuccessMessage("Movie successfully updated.");
-                    }
-                } catch (err) {
-                    console.log(err);
-                }
             }
         }
     };
@@ -144,7 +139,7 @@ const UpdateMovie: React.FC = () => {
                                                         <IonSelectOption value={'Drama'}>Drama</IonSelectOption>
                                                         <IonSelectOption value={'Thriller'}>Thriller</IonSelectOption>
                                                         <IonSelectOption value={'Horror'}>Horror</IonSelectOption>
-                                                        <IonSelectOption value={'Romance'}>Romace</IonSelectOption>
+                                                        <IonSelectOption value={'Romance'}>Romance</IonSelectOption>
                                                         <IonSelectOption value={'Western'}>Western</IonSelectOption>
                                                     </IonSelect>
                                                     {validationErrors.genre && <span style={{ color: 'red' }}>{validationErrors.genre}</span>}
