@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonDatetime, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonDatetime, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
+import { saveOutline } from 'ionicons/icons';
 import { validateScreening } from './validateScreening';
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
@@ -42,17 +43,29 @@ interface Screening {
 }
 
 const UpdateScreening: React.FC = () => {
-    const { movieId, screeningId } = useParams<{ movieId?: string; screeningId: string }>();
+    const { movieId, hallId, screeningId } = useParams<{ movieId?: string; hallId?: string; screeningId?: string }>();
 
     const [cinemas, setCinemas] = useState<Cinema[]>([]);
     const [selectedCinema, setSelectedCinema] = useState<string>('');
 
     const [movies, setMovies] = useState<Movie[]>([]);
-    const [movieName, setMovieName] = useState<string>('');
+    const [movie, setMovie] = useState<Omit<Movie, '_id'>>({
+        title: '',
+        description: '',
+        genre: '',
+        director: '',
+        releaseDate: '',
+        duration: NaN,
+        image: '',
+        rating: NaN
+    });
 
     const [halls, setHalls] = useState<Hall[]>([]);
-    const [hallName, setHallName] = useState<string>('');
-    const [hallSeats, setHallSeats] = useState<string>('');
+    const [hall, setHall] = useState<Omit<Hall, '_id'>>({
+        name: '',
+        numberOfSeats: NaN,
+        cinemaId: ''
+    })
 
     const [screening, setScreening] = useState<Omit<Screening, '_id' | 'endTime' | 'numberOfAvailableSeats'>>({
         date: '',
@@ -66,48 +79,133 @@ const UpdateScreening: React.FC = () => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(`/api/screenings/${screeningId}`);
-                const { screening, movie, hall, cinema, cinemas, halls, movies } = response.data;
-
-                setScreening({ movieId: screening.movieId, hallId: screening.hallId, date: screening.date, time: screening.time });
-                setMovieName(movie.title);
-                setHallName(hall.name);
-                setHallSeats(hall.numberOfSeats);
-                setSelectedCinema(cinema._id);
-                setCinemas(cinemas);
-                setHalls(halls);
-                setMovies(movies);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-
         fetchData();
-    }, [screeningId]);
+    }, [movieId, hallId, selectedCinema]);
 
-    useEffect(() => {
-        const fetchHalls = async () => {
-            if (selectedCinema) {
-                try {
-                    const token = localStorage.getItem('authToken');
-                    if (token) {
-                        const response = await axios.get(`/api/halls/cinema/${selectedCinema}`, {
-                            headers: {
-                                'x-auth-token': token
-                            }
-                        });
-                        setHalls(response.data.halls);
+    const fetchData = async () => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            await axios.get(`/api/screenings/${screeningId}`)
+                .then((response) => {
+                    if (response.status === 200) {
+                        const { date, time, movieId, hallId } = response.data;
+                        setScreening({ date, time, movieId, hallId });
                     }
-                } catch (err) {
-                    console.error(err);
-                }
-            }
-        };
+                })
+                .catch((err) => {
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
+                });
 
-        fetchHalls();
-    }, [selectedCinema]);
+            if (movieId) {
+                await axios.get(`/api/movies/${movieId}`)
+                    .then((response) => {
+                        if (response.status === 200) {
+                            const { title, description, genre, director, releaseDate, duration, image, rating } = response.data;
+                            setMovie({ title, description, genre, director, releaseDate, duration, image, rating });
+                        }
+                    })
+                    .catch((err) => {
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
+                    });
+
+                await axios.get('/api/cinemas', {
+                    headers: {
+                        'x-auth-token': token,
+                    }
+                })
+                    .then((response) => {
+                        if (response.status === 200) {
+                            const cleanCinemas: Cinema[] = response.data.cinemas.map((cinema: any) => ({
+                                _id: cinema._id,
+                                name: cinema.name,
+                                address: cinema.address,
+                                city: cinema.city
+                            }));
+                            setCinemas(cleanCinemas);
+                            setErrorMessage('');
+                        } else if (response.status === 404) {
+                            setCinemas([]);
+                            setErrorMessage(response.data.message);
+                        }
+                    })
+                    .catch((err) => {
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
+                    });;
+            } else if (hallId) {
+                await axios.get(`/api/halls/${hallId}`, {
+                    headers: {
+                        'x-auth-token': token,
+                    }
+                })
+                    .then((response) => {
+                        if (response.status === 200) {
+                            const { name, numberOfSeats, cinemaId } = response.data;
+                            setHall({ name, numberOfSeats, cinemaId })
+                        }
+                    })
+                    .catch((err) => {
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
+                    });
+
+                await axios.get('/api/movies')
+                    .then((response) => {
+                        if (response.status === 200) {
+                            const cleanMovies: Movie[] = response.data.movies.map((movie: any) => ({
+                                _id: movie._id,
+                                title: movie.title,
+                                description: movie.description,
+                                genre: movie.genre,
+                                director: movie.director,
+                                releaseDate: movie.releaseDate,
+                                duration: movie.duration,
+                                image: movie.image,
+                                rating: movie.rating
+                            }));
+                            setMovies(cleanMovies);
+                            setErrorMessage('');
+                        } else if (response.status === 404) {
+                            setMovies([]);
+                            setErrorMessage(response.data.message);
+                        }
+                    })
+                    .catch((err) => {
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
+                    });
+            }
+
+            if (selectedCinema) {
+                axios.get(`/api/cinemas/${selectedCinema}/halls`, {
+                    headers: {
+                        'x-auth-token': token,
+                    }
+                })
+                    .then((response) => {
+                        if (response.status === 200) {
+                            const cleanHalls: Hall[] = response.data.halls.map((hall: any) => ({
+                                _id: hall._id,
+                                name: hall.name,
+                                numberOfSeats: hall.numberOfSeats,
+                                cinemaId: hall.cinemaId
+                            }));
+                            setHalls(cleanHalls);
+                            setErrorMessage('');
+                        } else if (response.status === 404) {
+                            setHalls([]);
+                            setErrorMessage(response.data.message);
+                        }
+                    })
+                    .catch((err) => {
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
+                    });
+            }
+        }
+    };
 
     async function updateScreening(e: React.FormEvent) {
         e.preventDefault();
@@ -132,8 +230,8 @@ const UpdateScreening: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data);
-                        console.log(err.response.data);
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
                     });
             }
         }
@@ -160,7 +258,7 @@ const UpdateScreening: React.FC = () => {
                                                 <IonCol size='12' sizeMd='6'>
                                                     {movieId ? (
                                                         <>
-                                                            <IonInput label='Movie' type='text' value={movieName} labelPlacement='floating' fill='outline' disabled={true} />
+                                                            <IonInput label='Movie' type='text' value={movie.title} labelPlacement='floating' fill='outline' disabled={true} />
                                                             <IonSelect className='ion-margin-top' label='Cinema' value={selectedCinema} placeholder="Select Cinema" labelPlacement='floating' fill='outline' onIonChange={(e) => setSelectedCinema(e.detail.value)}>
                                                                 {cinemas.map(cinema => (
                                                                     <IonSelectOption key={cinema._id} value={cinema._id}>
@@ -192,7 +290,7 @@ const UpdateScreening: React.FC = () => {
                                                                 ))}
                                                             </IonSelect>
                                                             {validationErrors.movieId && <span style={{ color: 'red' }}>{validationErrors.movieId}</span>}
-                                                            <IonInput className='ion-margin-top' label='Hall' type='text' value={`${hallName}, ${hallSeats} seats`} labelPlacement='floating' fill='outline' disabled={true} />
+                                                            <IonInput className='ion-margin-top' label='Hall' type='text' value={`${hall.name}, ${hall.numberOfSeats} seats`} labelPlacement='floating' fill='outline' disabled={true} />
                                                         </>
 
                                                     )}
@@ -212,7 +310,7 @@ const UpdateScreening: React.FC = () => {
                                                 </IonCol>
                                             </IonRow>
                                             <IonRow className='ion-justify-content-center'>
-                                                <IonButton className='ion-margin-top' type='submit' color='primary'>Save</IonButton>
+                                                <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
                                             </IonRow>
                                         </IonGrid>
                                     </form>
