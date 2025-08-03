@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonInput, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonInput, IonPage, IonRow, IonToast, isPlatform, useIonViewWillEnter } from '@ionic/react';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { saveOutline, trashOutline } from 'ionicons/icons';
 import { validateRegister } from '../Register/validateRegister';
@@ -26,6 +26,8 @@ const Account: React.FC = () => {
 
     const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -65,26 +67,39 @@ const Account: React.FC = () => {
     }, []);
 
     const uploadProfilePicture = async () => {
-        try {
-            const photo = await Camera.getPhoto({
-                quality: 90,
-                allowEditing: true,
-                resultType: CameraResultType.Uri,
-                source: CameraSource.Prompt
-            });
+        if (isPlatform('capacitor') || isPlatform('ios') || isPlatform('android')) {
+            try {
+                const photo = await Camera.getPhoto({
+                    quality: 90,
+                    allowEditing: true,
+                    resultType: CameraResultType.Uri,
+                    source: CameraSource.Prompt
+                });
 
-            if (photo.webPath) {
-                setProfilePicturePreview(photo.webPath);
+                if (photo.webPath) {
+                    setProfilePicturePreview(photo.webPath);
 
-                const response = await fetch(photo.webPath);
-                const blob = await response.blob();
-                const file = new File([blob], "profile.jpg", { type: blob.type });
+                    const response = await fetch(photo.webPath);
+                    const blob = await response.blob();
+                    const file = new File([blob], "profile.jpg", { type: blob.type });
 
-                setProfilePicture(file);
-                setUser(user => ({ ...user, profilePicture: file.name }));
+                    setProfilePicture(file);
+                    setUser(user => ({ ...user, profilePicture: file.name }));
+                }
+            } catch (err) {
+                console.error('Error capturing profile image:', err);
             }
-        } catch (err) {
-            console.error('Error capturing profile image:', err);
+        } else {
+            fileInputRef.current?.click();
+        }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setProfilePicture(file);
+            setUser(user => ({ ...user, profilePicture: file.name }));
+            setProfilePicturePreview(URL.createObjectURL(file));
         }
     };
 
@@ -202,6 +217,7 @@ const Account: React.FC = () => {
                                         Upload Profile Picture
                                     </IonButton>
                                     <form onSubmit={updateUser}>
+                                        <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
                                         <IonInput label='Username' type='text' value={user.username} placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
                                         {validationErrors.username && <span style={{ color: 'red' }}>{validationErrors.username}</span>}
                                         <IonInput className='ion-margin-top' label='Email' type='text' value={user.email} placeholder='example@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />

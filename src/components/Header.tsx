@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useHistory } from 'react-router';
-import { IonButton, IonButtons, IonIcon, IonImg, IonPopover, IonTitle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonButtons, IonIcon, IonPopover, IonTitle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import axios from '../api/AxiosInstance';
 import { buildOutline, exitOutline, personCircleOutline, ticketOutline } from 'ionicons/icons';
 
@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                     }
                 })
                 .catch((err) => {
-                    console.error('Error fetching user details:', err);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }, []);
