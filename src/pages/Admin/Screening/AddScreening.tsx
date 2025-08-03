@@ -225,6 +225,47 @@ const AddScreening: React.FC = () => {
                     .then((response) => {
                         if (response.status === 201) {
                             setSuccessMessage("Screening successfully added.");
+                            if (movieId) {
+                                setMovie({
+                                    title: movie.title,
+                                    description: movie.description,
+                                    genre: movie.genre,
+                                    director: movie.director,
+                                    releaseDate: movie.releaseDate,
+                                    duration: movie.duration,
+                                    rating: movie.rating,
+                                    image: movie.image
+                                });
+                                setSelectedCinema('');
+                                setHall({
+                                    name: '',
+                                    numberOfSeats: NaN,
+                                    cinemaId: ''
+                                });
+                            } else {
+                                setMovie({
+                                    title: '',
+                                    description: '',
+                                    genre: '',
+                                    director: '',
+                                    releaseDate: '',
+                                    duration: NaN,
+                                    rating: NaN,
+                                    image: ''
+                                });
+                                setSelectedCinema(selectedCinema);
+                                setHall({
+                                    name: hall.name,
+                                    numberOfSeats: hall.numberOfSeats,
+                                    cinemaId: hall.cinemaId
+                                });
+                            }
+                            setScreening({
+                                date: '',
+                                time: '',
+                                movieId: '',
+                                hallId: ''
+                            });
                         }
                     })
                     .catch((err) => {
@@ -256,8 +297,8 @@ const AddScreening: React.FC = () => {
                                                 <IonCol size='12' sizeMd='6'>
                                                     {movieId ? (
                                                         <>
-                                                            <IonInput label='Movie' type='text' value={movie.title} labelPlacement='floating' fill='outline' disabled={true} />
-                                                            <IonSelect className='ion-margin-top' label='Cinema' value={selectedCinema} placeholder="Select Cinema" labelPlacement='floating' fill='outline' onIonChange={(e) => setSelectedCinema(e.detail.value)}>
+                                                            <IonInput label='Movie' type='text' labelPlacement='floating' fill='outline' disabled={true} value={movie.title} />
+                                                            <IonSelect className='ion-margin-top' label='Cinema' placeholder="Select Cinema" labelPlacement='floating' fill='outline' value={selectedCinema} onIonChange={(e) => setSelectedCinema(e.detail.value)}>
                                                                 {cinemas.map(cinema => (
                                                                     <IonSelectOption key={cinema._id} value={cinema._id}>
                                                                         {cinema.name}
@@ -267,7 +308,7 @@ const AddScreening: React.FC = () => {
                                                             {validationErrors.cinema && <span style={{ color: 'red' }}>{validationErrors.cinema}</span>}
                                                             {selectedCinema && (
                                                                 <>
-                                                                    <IonSelect className='ion-margin-top' label='Hall' value={screening.hallId} placeholder="Select Hall" labelPlacement='floating' fill='outline' onIonChange={(e) => setScreening({ ...screening, hallId: e.detail.value })}>
+                                                                    <IonSelect className='ion-margin-top' label='Hall' placeholder="Select Hall" labelPlacement='floating' fill='outline' value={screening.hallId} onIonChange={(e) => setScreening({ ...screening, hallId: e.detail.value })}>
                                                                         {halls.map(hall => (
                                                                             <IonSelectOption key={hall._id} value={hall._id}>
                                                                                 {`${hall.name}, ${hall.numberOfSeats} seats`}
@@ -280,7 +321,7 @@ const AddScreening: React.FC = () => {
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <IonSelect label='Movie' value={screening.movieId} placeholder="Select Movie" labelPlacement='floating' fill='outline' onIonChange={(e) => setScreening({ ...screening, movieId: e.detail.value })}>
+                                                            <IonSelect label='Movie' placeholder="Select Movie" labelPlacement='floating' fill='outline' value={screening.movieId} onIonChange={(e) => setScreening({ ...screening, movieId: e.detail.value })}>
                                                                 {movies.map(movie => (
                                                                     <IonSelectOption key={movie._id} value={movie._id}>
                                                                         {movie.title}
@@ -288,7 +329,7 @@ const AddScreening: React.FC = () => {
                                                                 ))}
                                                             </IonSelect>
                                                             {validationErrors.movieId && <span style={{ color: 'red' }}>{validationErrors.movieId}</span>}
-                                                            <IonInput className='ion-margin-top' label='Hall' type='text' value={`${hall.name}, ${hall.numberOfSeats} seats`} labelPlacement='floating' fill='outline' disabled={true} />
+                                                            <IonInput className='ion-margin-top' label='Hall' type='text' labelPlacement='floating' fill='outline' disabled={true} value={`${hall.name}, ${hall.numberOfSeats} seats`} />
                                                         </>
                                                     )}
                                                 </IonCol>

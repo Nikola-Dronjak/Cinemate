@@ -77,6 +77,17 @@ const AddMovie: React.FC = () => {
                     .then((response) => {
                         if (response.status === 201) {
                             setSuccessMessage("Movie successfully added.");
+                            setMovie({
+                                title: '',
+                                description: '',
+                                genre: '',
+                                director: '',
+                                releaseDate: '',
+                                duration: NaN,
+                                rating: NaN,
+                                image: ''
+                            });
+                            setImageFile(null);
                         }
                     })
                     .catch((err) => {
@@ -106,11 +117,11 @@ const AddMovie: React.FC = () => {
                                         <IonGrid>
                                             <IonRow>
                                                 <IonCol size='6'>
-                                                    <IonInput label='Title' type='text' placeholder='The title of the Movie' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setMovie({ ...movie, title: e.detail.value?.trim() || '' })} />
+                                                    <IonInput label='Title' type='text' placeholder='The title of the Movie' labelPlacement='floating' fill='outline' clearInput={true} value={movie.title} onIonInput={(e) => setMovie({ ...movie, title: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.title && <span style={{ color: 'red' }}>{validationErrors.title}</span>}
-                                                    <IonInput className='ion-margin-top' label='Director' type='text' placeholder='The director of the Movie' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setMovie({ ...movie, director: e.detail.value?.trim() || '' })} />
+                                                    <IonInput className='ion-margin-top' label='Director' type='text' placeholder='The director of the Movie' labelPlacement='floating' fill='outline' clearInput={true} value={movie.director} onIonInput={(e) => setMovie({ ...movie, director: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.director && <span style={{ color: 'red' }}>{validationErrors.director}</span>}
-                                                    <IonSelect className='ion-margin-top' label='Genre' placeholder='The genre of the Movie' labelPlacement='floating' fill='outline' onIonChange={(e) => setMovie({ ...movie, genre: e.detail.value?.trim() || '' })}>
+                                                    <IonSelect className='ion-margin-top' label='Genre' placeholder='The genre of the Movie' labelPlacement='floating' fill='outline' value={movie.genre} onIonChange={(e) => setMovie({ ...movie, genre: e.detail.value?.trim() || '' })}>
                                                         <IonSelectOption value={'Action'}>Action</IonSelectOption>
                                                         <IonSelectOption value={'Animation'}>Animation</IonSelectOption>
                                                         <IonSelectOption value={'Comedy'}>Comedy</IonSelectOption>
@@ -122,17 +133,17 @@ const AddMovie: React.FC = () => {
                                                         <IonSelectOption value={'Western'}>Western</IonSelectOption>
                                                     </IonSelect>
                                                     {validationErrors.genre && <span style={{ color: 'red' }}>{validationErrors.genre}</span>}
-                                                    <IonTextarea className='ion-margin-top' label='Description' placeholder='The description of the Movie' labelPlacement='floating' fill='outline' rows={6} onIonInput={(e) => setMovie({ ...movie, description: e.detail.value?.trim() || '' })} />
+                                                    <IonTextarea className='ion-margin-top' label='Description' placeholder='The description of the Movie' labelPlacement='floating' fill='outline' rows={6} value={movie.description} onIonInput={(e) => setMovie({ ...movie, description: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.description && <span style={{ color: 'red' }}>{validationErrors.description}</span>}
                                                 </IonCol>
                                                 <IonCol size='6'>
-                                                    <IonInput label='Release Date' type='date' placeholder='The release date of the Movie' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setMovie({ ...movie, releaseDate: e.detail.value?.trim() || '' })} />
+                                                    <IonInput label='Release Date' type='date' placeholder='The release date of the Movie' labelPlacement='floating' fill='outline' clearInput={true} value={movie.releaseDate} onIonInput={(e) => setMovie({ ...movie, releaseDate: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.releaseDate && <span style={{ color: 'red' }}>{validationErrors.releaseDate}</span>}
-                                                    <IonInput className='ion-margin-top' label='Duration' type='number' placeholder='The duration of the Movie in minutes' labelPlacement='floating' fill='outline' onIonInput={(e) => setMovie({ ...movie, duration: parseInt(e.detail.value!, 10) || 0 })} />
+                                                    <IonInput className='ion-margin-top' label='Duration' type='number' placeholder='The duration of the Movie in minutes' labelPlacement='floating' fill='outline' value={movie.duration} onIonInput={(e) => setMovie({ ...movie, duration: parseInt(e.detail.value!, 10) || 0 })} />
                                                     {validationErrors.duration && <span style={{ color: 'red' }}>{validationErrors.duration}</span>}
-                                                    <IonInput className='ion-margin-top' label='Rating' type='number' placeholder='The rating of the Movie (1.0 - 10.0)' labelPlacement='floating' fill='outline' step='0.1' onIonInput={(e) => setMovie({ ...movie, rating: parseFloat(e.detail.value!) })} />
+                                                    <IonInput className='ion-margin-top' label='Rating' type='number' placeholder='The rating of the Movie (1.0 - 10.0)' labelPlacement='floating' fill='outline' step='0.1' value={movie.rating} onIonInput={(e) => setMovie({ ...movie, rating: parseFloat(e.detail.value!) })} />
                                                     {validationErrors.rating && <span style={{ color: 'red' }}>{validationErrors.rating}</span>}
-                                                    <input type='file' className='ion-margin-top' onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)} />
+                                                    <input type='file' className='ion-margin-top' value={movie.image} onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)} />
                                                     {validationErrors.image && <span style={{ color: 'red' }}>{validationErrors.image}</span>}
                                                 </IonCol>
                                             </IonRow>

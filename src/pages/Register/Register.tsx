@@ -46,6 +46,11 @@ const Register: React.FC = () => {
                         const decodedToken = JSON.parse(atob(token.split('.')[1]));
                         const { isAdmin } = decodedToken;
                         localStorage.setItem('authToken', token);
+                        setUser({
+                            username: '',
+                            email: '',
+                            password: ''
+                        });
 
                         if (isAdmin) {
                             history.push('/admin');

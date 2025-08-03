@@ -94,6 +94,11 @@ const UpdateHall: React.FC = () => {
                     .then((response) => {
                         if (response.status === 200) {
                             setSuccessMessage("Hall successfully updated.");
+                            setHall({
+                                name: hall.name,
+                                numberOfSeats: hall.numberOfSeats,
+                                cinemaId: hall.cinemaId
+                            });
                         }
                     })
                     .catch((err) => {
@@ -120,11 +125,11 @@ const UpdateHall: React.FC = () => {
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={updateHall}>
-                                        <IonInput label='Name' type='text' value={hall.name} placeholder='Name of the Hall' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setHall({ ...hall, name: e.detail.value?.trim() || '' })} />
+                                        <IonInput label='Name' type='text' placeholder='Name of the Hall' labelPlacement='floating' fill='outline' clearInput={true} value={hall.name} onIonInput={(e) => setHall({ ...hall, name: e.detail.value?.trim() || '' })} />
                                         {validationErrors.name && <span style={{ color: 'red' }}>{validationErrors.name}</span>}
-                                        <IonInput className='ion-margin-top' label='Number of Seats' type='number' value={hall.numberOfSeats} placeholder='Number of Seats in the Hall' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setHall({ ...hall, numberOfSeats: parseInt(e.detail.value!, 10) || 0 })} />
+                                        <IonInput className='ion-margin-top' label='Number of Seats' type='number' placeholder='Number of Seats in the Hall' labelPlacement='floating' fill='outline' clearInput={true} value={hall.numberOfSeats} onIonInput={(e) => setHall({ ...hall, numberOfSeats: parseInt(e.detail.value!, 10) || 0 })} />
                                         {validationErrors.numberOfSeats && <span style={{ color: 'red' }}>{validationErrors.numberOfSeats}</span>}
-                                        <IonInput className='ion-margin-top' label='Cinema' type='text' value={cinema.name} labelPlacement='floating' fill='outline' disabled={true} />
+                                        <IonInput className='ion-margin-top' label='Cinema' type='text' labelPlacement='floating' fill='outline' disabled={true} value={cinema.name} />
                                         <IonRow className='ion-justify-content-center'>
                                             <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
                                         </IonRow>

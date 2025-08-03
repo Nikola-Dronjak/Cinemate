@@ -67,6 +67,11 @@ const UpdateCinema: React.FC = () => {
                     .then((response) => {
                         if (response.status === 200) {
                             setSuccessMessage("Cinema successfully updated.");
+                            setCinema({
+                                name: cinema.name,
+                                address: cinema.address,
+                                city: cinema.city
+                            });
                         }
                     })
                     .catch((err) => {
@@ -93,11 +98,11 @@ const UpdateCinema: React.FC = () => {
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={updateCinema}>
-                                        <IonInput label='Name' type='text' value={cinema.name} placeholder='Name of the Cinema' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setCinema({ ...cinema, name: e.detail.value?.trim() || '' })} />
+                                        <IonInput label='Name' type='text' placeholder='Name of the Cinema' labelPlacement='floating' fill='outline' clearInput={true} value={cinema.name} onIonInput={(e) => setCinema({ ...cinema, name: e.detail.value?.trim() || '' })} />
                                         {validationErrors.name && <span style={{ color: 'red' }}>{validationErrors.name}</span>}
-                                        <IonInput className='ion-margin-top' label='Address' type='text' value={cinema.address} placeholder='Street address of the Cinema' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setCinema({ ...cinema, address: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label='Address' type='text' placeholder='Street address of the Cinema' labelPlacement='floating' fill='outline' clearInput={true} value={cinema.address} onIonInput={(e) => setCinema({ ...cinema, address: e.detail.value?.trim() || '' })} />
                                         {validationErrors.address && <span style={{ color: 'red' }}>{validationErrors.address}</span>}
-                                        <IonInput className='ion-margin-top' label='City' type='text' value={cinema.city} placeholder='City in which the Cinema is located' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setCinema({ ...cinema, city: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label='City' type='text' placeholder='City in which the Cinema is located' labelPlacement='floating' fill='outline' clearInput={true} value={cinema.city} onIonInput={(e) => setCinema({ ...cinema, city: e.detail.value?.trim() || '' })} />
                                         {validationErrors.city && <span style={{ color: 'red' }}>{validationErrors.city}</span>}
                                         <IonRow className='ion-justify-content-center'>
                                             <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>

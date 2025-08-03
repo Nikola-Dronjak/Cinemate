@@ -44,6 +44,10 @@ const Login: React.FC = () => {
                         const decodedToken = JSON.parse(atob(token.split('.')[1]));
                         const { isAdmin } = decodedToken;
                         localStorage.setItem('authToken', token);
+                        setUser({
+                            email: '',
+                            password: ''
+                        });
 
                         if (isAdmin) {
                             history.push('/admin');
@@ -75,9 +79,9 @@ const Login: React.FC = () => {
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={handleLogin}>
-                                        <IonInput label='Email' type='text' placeholder='user@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
+                                        <IonInput label='Email' type='text' placeholder='user@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} value={user.email} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
                                         {validationErrors.email && <span style={{ color: 'red' }}>{validationErrors.email}</span>}
-                                        <IonInput className='ion-margin-top' label='Password' type='password' placeholder='Your password' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label='Password' type='password' placeholder='Your password' labelPlacement='floating' fill='outline' clearInput={true} value={user.password} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
                                         {validationErrors.password && <span style={{ color: 'red' }}>{validationErrors.password}</span>}
                                         <IonRow className='ion-justify-content-center'>
                                             <IonButton className='ion-margin-top ion-margin-bottom' type='submit' color={'primary'}>Sign in</IonButton>

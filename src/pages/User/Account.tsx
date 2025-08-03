@@ -137,6 +137,12 @@ const Account: React.FC = () => {
                     .then((response) => {
                         if (response.status === 200) {
                             setSuccessMessage("User successfully updated.");
+                            setUser({
+                                username: user.username,
+                                email: user.email,
+                                password: '',
+                                profilePicture: user.profilePicture
+                            });
                         }
                     })
                     .catch((err) => {
@@ -217,12 +223,12 @@ const Account: React.FC = () => {
                                         Upload Profile Picture
                                     </IonButton>
                                     <form onSubmit={updateUser}>
-                                        <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
-                                        <IonInput label='Username' type='text' value={user.username} placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
+                                        <input type='file' accept='image/*' ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
+                                        <IonInput label='Username' type='text' placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} value={user.username} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
                                         {validationErrors.username && <span style={{ color: 'red' }}>{validationErrors.username}</span>}
-                                        <IonInput className='ion-margin-top' label='Email' type='text' value={user.email} placeholder='example@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label='Email' type='text' placeholder='example@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} value={user.email} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
                                         {validationErrors.email && <span style={{ color: 'red' }}>{validationErrors.email}</span>}
-                                        <IonInput className='ion-margin-top' label='Password' type='password' placeholder='Your current/new password' labelPlacement='floating' fill='outline' clearInput={true} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label='Password' type='password' placeholder='Your current/new password' labelPlacement='floating' fill='outline' clearInput={true} value={user.password} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
                                         {validationErrors.password && <span style={{ color: 'red' }}>{validationErrors.password}</span>}
                                         <IonRow className='ion-justify-content-center'>
                                             <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
