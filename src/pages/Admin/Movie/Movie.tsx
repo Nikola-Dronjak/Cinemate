@@ -163,83 +163,132 @@ const Movie: React.FC = () => {
             <IonHeader>
                 <Header title='Cinemate' />
             </IonHeader>
-            <IonContent className='ion-padding'>
-                <IonGrid fixed>
-                    <IonRow className='ion-justify-content-center'>
-                        <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
-                            <IonCard>
-                                <IonCardContent>
-                                    <IonGrid>
-                                        <IonRow>
-                                            <IonCol size='12' sizeMd='6'>
-                                                <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
-                                            </IonCol>
-                                            <IonCol size='12' sizeMd='6'>
-                                                <IonCardHeader>
-                                                    <IonCardTitle>{movie.director}</IonCardTitle>
-                                                    <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
-                                                    <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
-                                                    <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
-                                                </IonCardHeader>
-                                                <IonCardContent>{movie.description}</IonCardContent>
-                                            </IonCol>
-                                        </IonRow>
-                                    </IonGrid>
-                                </IonCardContent>
-                            </IonCard>
-                        </IonCol>
-                    </IonRow>
-                </IonGrid>
-                <IonCard>
-                    <IonCardHeader>
-                        <IonToolbar color={'none'}>
-                            <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
-                            <IonButtons slot="end">
-                                <IonButton routerLink={`/admin/screenings/add/movie/${movieId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
-                            </IonButtons>
-                        </IonToolbar>
-                    </IonCardHeader>
-                    <IonCardContent className='ion-padding'>
-                        {screenings.map(screening => (
-                            <IonCard className='ion-padding' key={screening._id} color={'light'}>
-                                <IonCardHeader>
-                                    <IonCardTitle>{screening.cinemaName}, {screening.hallName}</IonCardTitle>
-                                    <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
-                                    <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
-                                </IonCardHeader>
+            {screenings.length === 0 ? (
+                <IonContent className='ion-padding'>
+                    <IonGrid fixed>
+                        <IonRow className='ion-justify-content-center'>
+                            <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
+                                <IonCard>
+                                    <IonCardContent>
+                                        <IonGrid>
+                                            <IonRow>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
+                                                </IonCol>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonCardHeader>
+                                                        <IonCardTitle>{movie.director}</IonCardTitle>
+                                                        <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
+                                                        <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
+                                                        <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
+                                                    </IonCardHeader>
+                                                    <IonCardContent>{movie.description}</IonCardContent>
+                                                </IonCol>
+                                            </IonRow>
+                                        </IonGrid>
+                                    </IonCardContent>
+                                </IonCard>
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                    <IonCard>
+                        <IonCardHeader>
+                            <IonToolbar color={'none'}>
+                                <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
+                                <IonButtons slot="end">
+                                    <IonButton routerLink={`/admin/screenings/add/movie/${movieId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                                </IonButtons>
+                            </IonToolbar>
+                        </IonCardHeader>
+                        <IonCardContent className='ion-padding'>
+                            <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                        </IonCardContent>
+                        <div className="ion-text-center">
+                            <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        </div>
+                    </IonCard>
+                </IonContent>
+            ) : (
+                <IonContent className='ion-padding'>
+                    <IonGrid fixed>
+                        <IonRow className='ion-justify-content-center'>
+                            <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
+                                <IonCard>
+                                    <IonCardContent>
+                                        <IonGrid>
+                                            <IonRow>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
+                                                </IonCol>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonCardHeader>
+                                                        <IonCardTitle>{movie.director}</IonCardTitle>
+                                                        <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
+                                                        <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
+                                                        <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
+                                                    </IonCardHeader>
+                                                    <IonCardContent>{movie.description}</IonCardContent>
+                                                </IonCol>
+                                            </IonRow>
+                                        </IonGrid>
+                                    </IonCardContent>
+                                </IonCard>
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                    <IonCard>
+                        <IonCardHeader>
+                            <IonToolbar color={'none'}>
+                                <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
+                                <IonButtons slot="end">
+                                    <IonButton routerLink={`/admin/screenings/add/movie/${movieId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                                </IonButtons>
+                            </IonToolbar>
+                        </IonCardHeader>
+                        <IonCardContent className='ion-padding'>
+                            {screenings.map(screening => (
+                                <IonCard className='ion-padding' key={screening._id} color={'light'}>
+                                    <IonCardHeader>
+                                        <IonCardTitle>{screening.cinemaName}, {screening.hallName}</IonCardTitle>
+                                        <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
+                                        <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
+                                    </IonCardHeader>
 
-                                {isFutureScreening(screening.date) && (
-                                    <>
-                                        <IonButton routerLink={`/admin/screenings/update/${screening._id}/movie/${movieId}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                                        <IonButton onClick={() => deleteScreening(screening._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
-                                    </>
-                                )}
-                            </IonCard>
-                        ))}
-                    </IonCardContent>
-                    <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
-                    </div>
-                </IonCard>
-                <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-                <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-            </IonContent>
+                                    {isFutureScreening(screening.date) && (
+                                        <>
+                                            <IonButton routerLink={`/admin/screenings/update/${screening._id}/movie/${movieId}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
+                                            <IonButton onClick={() => deleteScreening(screening._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                                        </>
+                                    )}
+                                </IonCard>
+                            ))}
+                        </IonCardContent>
+                        <div className="ion-text-center">
+                            <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        </div>
+                    </IonCard>
+                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                </IonContent>
+            )}
         </IonPage>
     );
 }

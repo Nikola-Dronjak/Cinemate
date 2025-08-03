@@ -93,45 +93,59 @@ const Movies: React.FC = () => {
             <IonHeader>
                 <Header title='Cinemate' />
             </IonHeader>
-            <IonContent className='ion-padding'>
-                <div className='ion-text-right'>
-                    <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
-                </div>
-                {movies.map(movie => (
-                    <IonCard className='ion-padding' key={movie._id}>
-                        <IonCardHeader>
-                            <IonCardTitle>{movie.title}</IonCardTitle>
-                            <IonCardSubtitle>{movie.director}, {movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
-                        </IonCardHeader>
+            {movies.length === 0 ? (
+                <IonContent className='ion-padding'>
+                    <div className='ion-text-right'>
+                        <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>Add<IonIcon icon={addCircleOutline} /></IonButton>
+                    </div >
+                    <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                    < div className="ion-text-center" >
+                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                    </div >
+                </IonContent >
+            ) : (
+                <IonContent className='ion-padding'>
+                    <div className='ion-text-right'>
+                        <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>Add<IonIcon icon={addCircleOutline} /></IonButton>
+                    </div >
+                    {movies.map(movie => (
+                        <IonCard className='ion-padding' key={movie._id}>
+                            <IonCardHeader>
+                                <IonCardTitle>{movie.title}</IonCardTitle>
+                                <IonCardSubtitle>{movie.director}, {movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
+                            </IonCardHeader>
 
-                        <IonButton routerLink={`/admin/movies/${movie._id}`} fill='solid' color={'primary'}>View <IonIcon icon={searchOutline} /></IonButton>
-                        <IonButton routerLink={`/admin/movies/update/${movie._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                        <IonButton onClick={() => deleteMovie(movie._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
-                    </IonCard>
-                ))}
-                <div className="ion-text-center">
-                    <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
-                    <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                    <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
-                </div>
-                <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-                <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-            </IonContent>
-        </IonPage>
+                            <IonButton routerLink={`/admin/movies/${movie._id}`} fill='solid' color={'primary'}>View <IonIcon icon={searchOutline} /></IonButton>
+                            <IonButton routerLink={`/admin/movies/update/${movie._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
+                            <IonButton onClick={() => deleteMovie(movie._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                        </IonCard>
+                    ))}
+                    < div className="ion-text-center" >
+                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                    </div >
+                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                </IonContent >
+            )}
+        </IonPage >
     );
 };
 

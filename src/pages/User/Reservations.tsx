@@ -153,8 +153,15 @@ const Reservations: React.FC = () => {
                     <Header title='Cinemate' />
                 </IonToolbar>
             </IonHeader>
-            {errorMessage ? (
-                <IonContent className='ion-padding ion-text-center'>{errorMessage}</IonContent>
+            {reservations.length === 0 ? (
+                <IonContent className='ion-padding'>
+                    <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                    <div className="ion-text-center">
+                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                    </div>
+                </IonContent>
             ) : (
                 <IonContent className='ion-padding'>
                     <IonGrid>

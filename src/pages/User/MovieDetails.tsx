@@ -56,69 +56,62 @@ const MovieDetails: React.FC = () => {
     });
 
     const fetchMovieDetails = (currentPage: number = page) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            axios.get(`/api/movies/${movieId}/screenings?page=${page}&limit=${limit}`, {
-                headers: {
-                    'x-auth-token': token,
+        axios.get(`/api/movies/${movieId}/screenings?page=${page}&limit=${limit}`)
+            .then(async (response) => {
+                if (response.status === 200) {
+                    const screeningsRaw = response.data.screeningsOfMovie;
+
+                    const screeningsWithHallAndCinemaNames = await Promise.all(
+                        screeningsRaw.map(async (screening: any) => {
+                            let hallName = 'Unknown';
+                            let cinemaName = 'Unknown';
+                            try {
+                                const hall = await axios.get(`/api/halls/${screening.hallId}`);
+                                if (hall.status === 200) {
+                                    hallName = hall.data.name;
+
+                                    try {
+                                        const cinema = await axios.get(`/api/cinemas/${hall.data.cinemaId}`);
+                                        if (cinema.status === 200) {
+                                            cinemaName = cinema.data.name;
+                                        }
+                                    } catch (err) {
+                                        console.error(`Error fetching cinema ${hall.data.cinemaId}`, err);
+                                    }
+                                }
+                            } catch (err) {
+                                console.error(`Error fetching hall ${screening.hallId}`, err);
+                            }
+                            return {
+                                ...screening,
+                                hallName,
+                                cinemaName
+                            };
+                        })
+                    );
+                    setTotalPages(response.data.totalPages);
+                    setScreenings(screeningsWithHallAndCinemaNames);
+                } else if (response.status === 404) {
+                    setScreenings([]);
+                    setErrorMessage(response.data.message);
                 }
             })
-                .then(async (response) => {
-                    if (response.status === 200) {
-                        const screeningsRaw = response.data.screeningsOfMovie;
+            .catch((err) => {
+                setErrorMessage(err.response.data.message);
+                console.error(err.response.data.message || err.message);
+            });
 
-                        const screeningsWithHallAndCinemaNames = await Promise.all(
-                            screeningsRaw.map(async (screening: any) => {
-                                let hallName = 'Unknown';
-                                let cinemaName = 'Unknown';
-                                try {
-                                    const hall = await axios.get(`/api/halls/${screening.hallId}`);
-                                    if (hall.status === 200) {
-                                        hallName = hall.data.name;
-
-                                        try {
-                                            const cinema = await axios.get(`/api/cinemas/${hall.data.cinemaId}`);
-                                            if (cinema.status === 200) {
-                                                cinemaName = cinema.data.name;
-                                            }
-                                        } catch (err) {
-                                            console.error(`Error fetching cinema ${hall.data.cinemaId}`, err);
-                                        }
-                                    }
-                                } catch (err) {
-                                    console.error(`Error fetching hall ${screening.hallId}`, err);
-                                }
-                                return {
-                                    ...screening,
-                                    hallName,
-                                    cinemaName
-                                };
-                            })
-                        );
-                        setTotalPages(response.data.totalPages);
-                        setScreenings(screeningsWithHallAndCinemaNames);
-                    } else if (response.status === 404) {
-                        setScreenings([]);
-                        setErrorMessage(response.data.message);
-                    }
-                })
-                .catch((err) => {
-                    setErrorMessage(err.response.data.message);
-                    console.error(err.response.data.message || err.message);
-                });
-
-            axios.get(`/api/movies/${movieId}`)
-                .then((response) => {
-                    if (response.status === 200) {
-                        const { title, description, genre, director, releaseDate, duration, image, rating } = response.data;
-                        setMovie({ title, description, genre, director, releaseDate, duration, image, rating });
-                    }
-                })
-                .catch((err) => {
-                    setErrorMessage(err.response.data.message);
-                    console.error(err.response.data.message || err.message);
-                });
-        }
+        axios.get(`/api/movies/${movieId}`)
+            .then((response) => {
+                if (response.status === 200) {
+                    const { title, description, genre, director, releaseDate, duration, image, rating } = response.data;
+                    setMovie({ title, description, genre, director, releaseDate, duration, image, rating });
+                }
+            })
+            .catch((err) => {
+                setErrorMessage(err.response.data.message);
+                console.error(err.response.data.message || err.message);
+            });
     };
 
     const isFutureScreening = (screeningDate: string) => {
@@ -164,76 +157,121 @@ const MovieDetails: React.FC = () => {
             <IonHeader>
                 <Header title='Cinemate' />
             </IonHeader>
-            <IonContent className='ion-padding'>
-                <IonGrid fixed>
-                    <IonRow className='ion-justify-content-center'>
-                        <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
-                            <IonCard>
-                                <IonCardContent>
-                                    <IonGrid>
-                                        <IonRow>
-                                            <IonCol size='12' sizeMd='6'>
-                                                <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
-                                            </IonCol>
-                                            <IonCol size='12' sizeMd='6'>
-                                                <IonCardHeader>
-                                                    <h1>{movie.title}</h1>
-                                                    <h2>{movie.director}</h2>
-                                                    <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
-                                                    <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
-                                                    <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
-                                                </IonCardHeader>
-                                                <IonCardContent>{movie.description}</IonCardContent>
-                                            </IonCol>
-                                        </IonRow>
-                                    </IonGrid>
-                                </IonCardContent>
-                            </IonCard>
-                        </IonCol>
-                    </IonRow>
-                </IonGrid>
-                <IonCard>
-                    <IonCardHeader>
-                        <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
-                    </IonCardHeader>
-                    <IonCardContent className='ion-padding'>
-                        {screenings.filter(screening => isFutureScreening(screening.date)).map(screening => (
-                            <IonCard className='ion-padding' key={screening._id} color={'light'}>
-                                <IonCardHeader>
-                                    <IonCardTitle>{screening.cinemaName}, {screening.hallName}</IonCardTitle>
-                                    <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
-                                    <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
-                                </IonCardHeader>
-                                {isLoggedIn() && (
-                                    <IonButton onClick={() => makeReservation(screening._id)} fill='solid' color={'primary'}>Add Reservation</IonButton>
-                                )}
-                            </IonCard>
-                        ))}
-                    </IonCardContent>
-                    <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
-                    </div>
-                </IonCard>
-                <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-                <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-            </IonContent>
-        </IonPage>
+            {screenings.length === 0 ? (
+                <IonContent className='ion-padding'>
+                    <IonGrid fixed>
+                        <IonRow className='ion-justify-content-center'>
+                            <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
+                                <IonCard>
+                                    <IonCardContent>
+                                        <IonGrid>
+                                            <IonRow>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
+                                                </IonCol>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonCardHeader>
+                                                        <h1>{movie.title}</h1>
+                                                        <h2>{movie.director}</h2>
+                                                        <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
+                                                        <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
+                                                        <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
+                                                    </IonCardHeader>
+                                                    <IonCardContent>{movie.description}</IonCardContent>
+                                                </IonCol>
+                                            </IonRow >
+                                        </IonGrid >
+                                    </IonCardContent >
+                                </IonCard >
+                            </IonCol >
+                        </IonRow >
+                    </IonGrid >
+                    <IonCard>
+                        <IonCardHeader>
+                            <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
+                        </IonCardHeader>
+                        <IonCardContent className='ion-padding'>
+                            <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                        </IonCardContent>
+                        <div className="ion-text-center">
+                            <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        </div>
+                    </IonCard>
+                </IonContent>
+            ) : (
+                <IonContent className='ion-padding'>
+                    <IonGrid fixed>
+                        <IonRow className='ion-justify-content-center'>
+                            <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
+                                <IonCard>
+                                    <IonCardContent>
+                                        <IonGrid>
+                                            <IonRow>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
+                                                </IonCol>
+                                                <IonCol size='12' sizeMd='6'>
+                                                    <IonCardHeader>
+                                                        <h1>{movie.title}</h1>
+                                                        <h2>{movie.director}</h2>
+                                                        <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
+                                                        <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
+                                                        <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
+                                                    </IonCardHeader>
+                                                    <IonCardContent>{movie.description}</IonCardContent>
+                                                </IonCol>
+                                            </IonRow >
+                                        </IonGrid >
+                                    </IonCardContent >
+                                </IonCard >
+                            </IonCol >
+                        </IonRow >
+                    </IonGrid >
+                    <IonCard>
+                        <IonCardHeader>
+                            <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
+                        </IonCardHeader>
+                        <IonCardContent className='ion-padding'>
+                            {screenings.filter(screening => isFutureScreening(screening.date)).map(screening => (
+                                <IonCard className='ion-padding' key={screening._id} color={'light'}>
+                                    <IonCardHeader>
+                                        <IonCardTitle>{screening.cinemaName}, {screening.hallName}</IonCardTitle>
+                                        <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
+                                        <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
+                                    </IonCardHeader>
+                                    {isLoggedIn() && (
+                                        <IonButton onClick={() => makeReservation(screening._id)} fill='solid' color={'primary'}>Add Reservation</IonButton>
+                                    )}
+                                </IonCard>
+                            ))}
+                        </IonCardContent>
+                        <div className="ion-text-center">
+                            <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        </div>
+                    </IonCard>
+                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                </IonContent>
+            )}
+        </IonPage >
     );
 }
 

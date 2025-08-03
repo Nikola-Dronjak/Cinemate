@@ -142,55 +142,76 @@ const Hall: React.FC = () => {
             <IonHeader>
                 <Header title='Cinemate' />
             </IonHeader>
-            <IonContent className='ion-padding'>
-                <IonCard className='ion-padding'>
-                    <IonToolbar>
-                        <IonCardTitle>Screenings for {hall.name}</IonCardTitle>
-                        <IonButtons slot="end">
-                            <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
-                        </IonButtons>
-                    </IonToolbar>
-                    <IonCardContent>
-                        {screenings.map(screening => (
-                            <IonCard className='ion-padding' key={screening._id} color={'light'}>
-                                <IonCardHeader>
-                                    <IonCardTitle>{screening.movieTitle}</IonCardTitle>
-                                    <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
-                                    <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
-                                </IonCardHeader>
+            {screenings.length === 0 ? (
+                <IonContent className='ion-padding'>
+                    <IonCard className='ion-padding'>
+                        <IonToolbar>
+                            <IonCardTitle>Screenings for {hall.name}</IonCardTitle>
+                            <IonButtons slot="end">
+                                <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                            </IonButtons>
+                        </IonToolbar>
+                        <IonCardContent>
+                            <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                        </IonCardContent>
+                        <div className="ion-text-center">
+                            <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        </div>
+                    </IonCard>
+                </IonContent>
+            ) : (
+                <IonContent className='ion-padding'>
+                    <IonCard className='ion-padding'>
+                        <IonToolbar>
+                            <IonCardTitle>Screenings for {hall.name}</IonCardTitle>
+                            <IonButtons slot="end">
+                                <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                            </IonButtons>
+                        </IonToolbar>
+                        <IonCardContent>
+                            {screenings.map(screening => (
+                                <IonCard className='ion-padding' key={screening._id} color={'light'}>
+                                    <IonCardHeader>
+                                        <IonCardTitle>{screening.movieTitle}</IonCardTitle>
+                                        <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
+                                        <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
+                                    </IonCardHeader>
 
-                                {isFutureScreening(screening.date) && (
-                                    <>
-                                        <IonButton routerLink={`/admin/screenings/update/${screening._id}/hall/${hallId}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                                        <IonButton onClick={() => deleteScreening(screening._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
-                                    </>
-                                )}
-                            </IonCard>
-                        ))}
-                    </IonCardContent>
-                    <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
-                    </div>
-                </IonCard>
-                <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-                <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
-                    position: 'fixed',
-                    top: '10px',
-                    right: '10px',
-                    width: 'auto',
-                    maxWidth: '300px',
-                    zIndex: 9999
-                }} />
-            </IonContent>
+                                    {isFutureScreening(screening.date) && (
+                                        <>
+                                            <IonButton routerLink={`/admin/screenings/update/${screening._id}/hall/${hallId}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
+                                            <IonButton onClick={() => deleteScreening(screening._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                                        </>
+                                    )}
+                                </IonCard>
+                            ))}
+                        </IonCardContent>
+                        <div className="ion-text-center">
+                            <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        </div>
+                    </IonCard>
+                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
+                </IonContent>
+            )}
         </IonPage>
     );
 }
