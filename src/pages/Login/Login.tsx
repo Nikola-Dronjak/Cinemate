@@ -11,10 +11,11 @@ interface User {
     email: string;
     password: string;
     isAdmin: boolean;
+    profilePicture: string;
 }
 
 const Login: React.FC = () => {
-    const [user, setUser] = useState<Omit<User, '_id' | 'username' | 'isAdmin'>>({
+    const [user, setUser] = useState<Omit<User, '_id' | 'username' | 'isAdmin' | 'profilePicture'>>({
         email: '',
         password: ''
     });
@@ -36,9 +37,8 @@ const Login: React.FC = () => {
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {
-            axios.post('/api/login', user)
+            axios.post('/api/users/login', user)
                 .then((response) => {
-                    console.log(response.data + "asdasd");
                     if (response.status === 200) {
                         const token = response.data;
                         const decodedToken = JSON.parse(atob(token.split('.')[1]));
@@ -50,11 +50,11 @@ const Login: React.FC = () => {
                         } else {
                             history.push('/home');
                         }
-                    } 
+                    }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data);
-                    console.log(err.response.data);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }

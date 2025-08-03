@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { calendarOutline, star, ticketOutline } from 'ionicons/icons';
@@ -25,12 +25,8 @@ interface Screening {
     numberOfAvailableSeats: number;
     movieId: string;
     hallId: string;
-    hall: {
-        name: string;
-    };
-    cinema: {
-        name: string;
-    };
+    hallName?: string;
+    cinemaName?: string;
 }
 
 const MovieDetails: React.FC = () => {
@@ -48,31 +44,82 @@ const MovieDetails: React.FC = () => {
 
     const [screenings, setScreenings] = useState<Screening[]>([]);
 
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
     useIonViewWillEnter(() => {
-        fetchMovieDetails();
+        fetchMovieDetails(page);
     });
 
-    const fetchMovieDetails = useCallback(() => {
-        axios.get(`/api/movies/${movieId}`)
-            .then((response) => {
-                if (response.status === 200) {
-                    const { movie, screenings } = response.data;
-                    setMovie(movie);
-                    setScreenings(screenings);
-                    setErrorMessage('');
-                } else if (response.status === 404) {
-                    setScreenings([]);
-                    setErrorMessage(response.data);
+    const fetchMovieDetails = (currentPage: number = page) => {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            axios.get(`/api/movies/${movieId}/screenings?page=${page}&limit=${limit}`, {
+                headers: {
+                    'x-auth-token': token,
                 }
             })
-            .catch((err) => {
-                setErrorMessage(err.response?.data || 'Error fetching movie details');
-                console.log(err.response?.data || err.message);
-            });
-    }, [movieId]);
+                .then(async (response) => {
+                    if (response.status === 200) {
+                        const screeningsRaw = response.data.screeningsOfMovie;
+
+                        const screeningsWithHallAndCinemaNames = await Promise.all(
+                            screeningsRaw.map(async (screening: any) => {
+                                let hallName = 'Unknown';
+                                let cinemaName = 'Unknown';
+                                try {
+                                    const hall = await axios.get(`/api/halls/${screening.hallId}`);
+                                    if (hall.status === 200) {
+                                        hallName = hall.data.name;
+
+                                        try {
+                                            const cinema = await axios.get(`/api/cinemas/${hall.data.cinemaId}`);
+                                            if (cinema.status === 200) {
+                                                cinemaName = cinema.data.name;
+                                            }
+                                        } catch (err) {
+                                            console.error(`Error fetching cinema ${hall.data.cinemaId}`, err);
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.error(`Error fetching hall ${screening.hallId}`, err);
+                                }
+                                return {
+                                    ...screening,
+                                    hallName,
+                                    cinemaName
+                                };
+                            })
+                        );
+                        setTotalPages(response.data.totalPages);
+                        setScreenings(screeningsWithHallAndCinemaNames);
+                    } else if (response.status === 404) {
+                        setScreenings([]);
+                        setErrorMessage(response.data.message);
+                    }
+                })
+                .catch((err) => {
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
+                });
+
+            axios.get(`/api/movies/${movieId}`)
+                .then((response) => {
+                    if (response.status === 200) {
+                        const { title, description, genre, director, releaseDate, duration, image, rating } = response.data;
+                        setMovie({ title, description, genre, director, releaseDate, duration, image, rating });
+                    }
+                })
+                .catch((err) => {
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
+                });
+        }
+    };
 
     const isFutureScreening = (screeningDate: string) => {
         const today = new Date();
@@ -101,13 +148,13 @@ const MovieDetails: React.FC = () => {
                 }
             })
                 .then((response) => {
-                    if (response.status === 200) {
+                    if (response.status === 201) {
                         setSuccessMessage("Reservation successfully added.");
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response?.data || 'Error adding reservation');
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }
@@ -153,7 +200,7 @@ const MovieDetails: React.FC = () => {
                         {screenings.filter(screening => isFutureScreening(screening.date)).map(screening => (
                             <IonCard className='ion-padding' key={screening._id} color={'light'}>
                                 <IonCardHeader>
-                                    <IonCardTitle>{screening.cinema.name}, {screening.hall.name}</IonCardTitle>
+                                    <IonCardTitle>{screening.cinemaName}, {screening.hallName}</IonCardTitle>
                                     <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
                                     <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
                                 </IonCardHeader>
@@ -163,6 +210,11 @@ const MovieDetails: React.FC = () => {
                             </IonCard>
                         ))}
                     </IonCardContent>
+                    <div className="ion-text-center">
+                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                    </div>
                 </IonCard>
                 <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                     position: 'fixed',

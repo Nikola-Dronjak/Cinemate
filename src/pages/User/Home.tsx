@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonImg, IonPage, IonRow, useIonViewWillEnter } from '@ionic/react';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
@@ -18,28 +18,44 @@ interface Movie {
 const Home: React.FC = () => {
 	const [movies, setMovies] = useState<Movie[]>([]);
 
+	const [page, setPage] = useState(1);
+	const [limit] = useState(10);
+	const [totalPages, setTotalPages] = useState(1);
+
 	const [errorMessage, setErrorMessage] = useState('');
 
 	useIonViewWillEnter(() => {
-		fetchMovies();
+		fetchMovies(page);
 	});
 
-	const fetchMovies = useCallback(() => {
-		axios.get('/api/movies')
+	const fetchMovies = (currentPage: number = page) => {
+		axios.get(`/api/movies?page=${page}&limit=${limit}`)
 			.then((response) => {
 				if (response.status === 200) {
-					setMovies(response.data);
+					const cleanMovies: Movie[] = response.data.movies.map((movie: any) => ({
+						_id: movie._id,
+						title: movie.title,
+						description: movie.description,
+						genre: movie.genre,
+						director: movie.director,
+						releaseDate: movie.releaseDate,
+						duration: movie.duration,
+						image: movie.image,
+						rating: movie.rating
+					}));
+					setTotalPages(response.data.totalPages);
+					setMovies(cleanMovies);
 					setErrorMessage('');
 				} else if (response.status === 404) {
 					setMovies([]);
-					setErrorMessage(response.data);
+					setErrorMessage(response.data.message);
 				}
 			})
 			.catch((err) => {
-				setErrorMessage(err.response?.data || 'Error fetching movies');
-				console.log(err.response?.data || err.message);
+				setErrorMessage(err.response.data.message);
+				console.error(err.response.data.message || err.message);
 			});
-	}, []);
+	};
 
 	return (
 		<IonPage>
@@ -72,6 +88,11 @@ const Home: React.FC = () => {
 							))}
 						</IonRow>
 					</IonGrid>
+					<div className="ion-text-center">
+						<IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+						<IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+					</div>
 				</IonContent>
 			)}
 		</IonPage>

@@ -25,6 +25,7 @@ const Account: React.FC = () => {
     });
 
     const [profilePicturePreview, setProfilePicturePreview] = useState<string | null>(null);
+    const [profilePicture, setProfilePicture] = useState<File | null>(null);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -57,7 +58,8 @@ const Account: React.FC = () => {
                     }
                 })
                 .catch((err) => {
-                    console.error('Error fetching user details:', err);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }, []);
@@ -67,8 +69,8 @@ const Account: React.FC = () => {
             const photo = await Camera.getPhoto({
                 quality: 90,
                 allowEditing: true,
-                resultType: CameraResultType.Uri, // returns a file URI for use with fetch
-                source: CameraSource.Prompt // gives user the choice between Camera or Photos
+                resultType: CameraResultType.Uri,
+                source: CameraSource.Prompt
             });
 
             if (photo.webPath) {
@@ -78,30 +80,11 @@ const Account: React.FC = () => {
                 const blob = await response.blob();
                 const file = new File([blob], "profile.jpg", { type: blob.type });
 
-                const formData = new FormData();
-                formData.append("image", file);
-
-                const token = localStorage.getItem('authToken');
-                if (token) {
-                    await axios.post('/api/users/uploadPfp', formData, {
-                        headers: {
-                            'x-auth-token': token,
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    })
-                        .then((response) => {
-                            if (response.status === 200) {
-                                setSuccessMessage("Profile picture successfully added.");
-                            }
-                        })
-                        .catch((err) => {
-                            setErrorMessage(err.response.data);
-                            console.log(err.response.data);
-                        });
-                }
+                setProfilePicture(file);
+                setUser(user => ({ ...user, profilePicture: file.name }));
             }
         } catch (err) {
-            console.error('Error uploading profile image:', err);
+            console.error('Error capturing profile image:', err);
         }
     };
 
@@ -114,13 +97,26 @@ const Account: React.FC = () => {
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {
+            const formData = new FormData();
+            formData.append('username', user.username);
+            formData.append('email', user.email);
+
+            if (user.password) {
+                formData.append('password', user.password);
+            }
+
+            if (profilePicture) {
+                formData.append('profilePicture', profilePicture);
+            }
+
             const token = localStorage.getItem('authToken');
             if (token) {
                 const decodedToken = JSON.parse(atob(token.split('.')[1]));
                 const { userId } = decodedToken;
-                axios.put(`/api/users/${userId}`, user, {
+                axios.put(`/api/users/${userId}`, formData, {
                     headers: {
                         'x-auth-token': token,
+                        'Content-Type': 'multipart/form-data'
                     }
                 })
                     .then((response) => {
@@ -129,8 +125,8 @@ const Account: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setValidationErrors(err.response.data);
-                        console.log(err.response.data);
+                        setErrorMessage(err.response.data.message);
+                        console.error(err.response.data.message || err.message);
                     });
             }
         }
@@ -147,7 +143,7 @@ const Account: React.FC = () => {
                 }
             })
                 .then((response) => {
-                    if (response.status === 200) {
+                    if (response.status === 204) {
                         localStorage.removeItem('authToken');
                         history.push('/home');
                         setSuccessMessage("User successfully removed.");

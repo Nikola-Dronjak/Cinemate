@@ -1,62 +1,119 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
 
 interface Reservation {
     _id: string;
+    userId: string;
     screening: {
+        _id: string;
         date: string;
         time: string;
-    };
-    movie: {
-        title: string;
-    };
-    hall: {
-        name: string;
-    };
-    cinema: {
-        name: string;
-    };
+        endTime: string;
+        numberOfAvailableSeats: number;
+        movieId: string;
+        hallId: string;
+        hallName?: string;
+        cinemaName?: string;
+        movieTitle?: string;
+    }
 }
 
 const Reservations: React.FC = () => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
 
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState<string>('');
 
     useIonViewWillEnter(() => {
-        fetchReservations();
+        fetchReservations(page);
     });
 
-    const fetchReservations = useCallback(() => {
+    const fetchReservations = (currentPage: number = page) => {
         const token = localStorage.getItem('authToken');
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const { userId } = decodedToken;
-            axios.get(`/api/reservations/user/${userId}`, {
+            axios.get(`/api/users/${userId}/reservations?page=${page}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
                 }
             })
-                .then((response) => {
+                .then(async (response) => {
                     if (response.status === 200) {
-                        setReservations(response.data);
-                        setErrorMessage('');
+                        const reservationsRaw = response.data.reservationsOfUser;
+
+                        const reservationsWithScreeningDetails = await Promise.all(
+                            reservationsRaw.map(async (reservation: any) => {
+                                let screeningDetails = {};
+                                let hallName = 'Unknown';
+                                let cinemaName = 'Unknown';
+                                let movieTitle = 'Unknown';
+                                try {
+                                    const screening = await axios.get(`/api/screenings/${reservation.screeningId}`);
+                                    if (screening.status === 200) {
+                                        screeningDetails = screening.data;
+
+                                        try {
+                                            const hall = await axios.get(`/api/halls/${screening.data.hallId}`);
+                                            if (hall.status === 200) {
+                                                hallName = hall.data.name;
+
+                                                try {
+                                                    const cinema = await axios.get(`/api/cinemas/${hall.data.cinemaId}`);
+                                                    if (cinema.status === 200) {
+                                                        cinemaName = cinema.data.name;
+
+                                                    }
+                                                } catch (err) {
+                                                    console.error(`Error fetching cinema ${hall.data.cinemaId}`, err);
+                                                }
+                                            }
+                                        } catch (err) {
+                                            console.error(`Error fetching hall ${screening.data.hallId}`, err);
+                                        }
+
+                                        try {
+                                            const movie = await axios.get(`/api/movies/${screening.data.movieId}`);
+                                            if (movie.status === 200) {
+                                                movieTitle = movie.data.title;
+                                            }
+                                        } catch (err) {
+                                            console.error(`Error fetching movie ${screening.data.movieId}`, err);
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.error(`Error fetching screening ${reservation.screeningId}`, err);
+                                }
+                                return {
+                                    ...reservation,
+                                    screening: {
+                                        ...screeningDetails,
+                                        hallName,
+                                        cinemaName,
+                                        movieTitle
+                                    }
+                                };
+                            })
+                        );
+                        setTotalPages(response.data.totalPages);
+                        setReservations(reservationsWithScreeningDetails);
                     } else if (response.status === 404) {
                         setReservations([]);
-                        setErrorMessage(response.data);
+                        setErrorMessage(response.data.message);
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response?.data);
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
-        } else {
-            setErrorMessage('User not logged in');
         }
-    }, []);
+    };
 
     const isFutureScreening = (screeningDate: string) => {
         const today = new Date();
@@ -75,7 +132,7 @@ const Reservations: React.FC = () => {
                 }
             })
                 .then((response) => {
-                    if (response.status === 200) {
+                    if (response.status === 204) {
                         setSuccessMessage("Reservation successfully removed.");
                         fetchReservations();
                     } else {
@@ -83,8 +140,8 @@ const Reservations: React.FC = () => {
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response?.data);
-                    console.log(err.response?.data || err.message);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }
@@ -106,9 +163,9 @@ const Reservations: React.FC = () => {
                                 <IonCol size="12" sizeSm="6" sizeMd="4" sizeLg="3" key={reservation._id}>
                                     <IonCard className='ion-padding'>
                                         <IonCardHeader>
-                                            <IonCardTitle>{reservation.movie.title}</IonCardTitle>
-                                            <IonCardSubtitle>Cinema: {reservation.cinema.name}</IonCardSubtitle>
-                                            <IonCardSubtitle>Hall: {reservation.hall.name}</IonCardSubtitle>
+                                            <IonCardTitle>{reservation.screening.movieTitle}</IonCardTitle>
+                                            <IonCardSubtitle>Cinema: {reservation.screening.cinemaName}</IonCardSubtitle>
+                                            <IonCardSubtitle>Hall: {reservation.screening.hallName}</IonCardSubtitle>
                                             <IonCardSubtitle>Date: {reservation.screening.date}</IonCardSubtitle>
                                             <IonCardSubtitle>Time: {reservation.screening.time}</IonCardSubtitle>
                                         </IonCardHeader>
@@ -122,6 +179,11 @@ const Reservations: React.FC = () => {
                             ))}
                         </IonRow>
                     </IonGrid>
+                    <div className="ion-text-center">
+                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                    </div>
                     <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                         position: 'fixed',
                         top: '10px',

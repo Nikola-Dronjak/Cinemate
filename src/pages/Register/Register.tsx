@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonToast } from '@ionic/react';
 import { validateRegister } from './validateRegister';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
@@ -11,15 +11,17 @@ interface User {
     email: string;
     password: string;
     isAdmin: boolean;
+    profilePicture: string;
 }
 
 const Register: React.FC = () => {
-    const [user, setUser] = useState<Omit<User, '_id' | 'isAdmin'>>({
+    const [user, setUser] = useState<Omit<User, '_id' | 'isAdmin' | 'profilePicture'>>({
         username: '',
         email: '',
         password: ''
     });
 
+    const [errorMessage, setErrorMessage] = useState('');
     const [validationErrors, setValidationErrors] = useState<{
         username?: string;
         email?: string;
@@ -37,10 +39,10 @@ const Register: React.FC = () => {
         if (Object.keys(validationErrors).length > 0) {
             setValidationErrors(validationErrors);
         } else {
-            axios.post('/api/register', user)
+            axios.post('/api/users/register', user)
                 .then((response) => {
-                    if (response.status === 200) {
-                        const token = response.data;
+                    if (response.status === 201) {
+                        const token = response.data.token;
                         const decodedToken = JSON.parse(atob(token.split('.')[1]));
                         const { isAdmin } = decodedToken;
                         localStorage.setItem('authToken', token);
@@ -53,8 +55,8 @@ const Register: React.FC = () => {
                     }
                 })
                 .catch((err) => {
-                    setValidationErrors(err.response.data);
-                    console.log(err.response.data);
+                    setErrorMessage(err.response.data.message);
+                    console.error(err.response.data.message || err.message);
                 });
         }
     }
@@ -86,6 +88,14 @@ const Register: React.FC = () => {
                                         </IonRow>
                                     </form>
                                     <p>Already have an account? <a href='/login'>Sign in!</a></p>
+                                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                                        position: 'fixed',
+                                        top: '10px',
+                                        right: '10px',
+                                        width: 'auto',
+                                        maxWidth: '300px',
+                                        zIndex: 9999
+                                    }} />
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>
