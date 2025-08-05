@@ -166,6 +166,7 @@ const Account: React.FC = () => {
                 .then((response) => {
                     if (response.status === 204) {
                         localStorage.removeItem('authToken');
+                        localStorage.removeItem('refreshToken');
                         history.push('/home');
                         setSuccessMessage("User successfully removed.");
                     } else {

@@ -44,8 +44,24 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        history.push('/home');
+        const token = localStorage.getItem('authToken')!;
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        const { userId } = decodedToken;
+        axios.post('/api/users/logout', { userId }, {
+            headers: {
+                'x-auth-token': token
+            }
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('refreshToken');
+                    history.push('/home');
+                }
+            })
+            .catch((err) => {
+                console.error(err.response.data.message || err.message);
+            });
     };
 
     const handlePopover = (e: React.MouseEvent<HTMLIonButtonElement>) => {

@@ -42,10 +42,12 @@ const Register: React.FC = () => {
             axios.post('/api/users/register', user)
                 .then((response) => {
                     if (response.status === 201) {
-                        const token = response.data.token;
-                        const decodedToken = JSON.parse(atob(token.split('.')[1]));
-                        const { isAdmin } = decodedToken;
-                        localStorage.setItem('authToken', token);
+                        const accessToken = response.data.accessToken;
+                        const refreshToken = response.data.refreshToken;
+                        const decodedAccessToken = JSON.parse(atob(accessToken.split('.')[1]));
+                        const { isAdmin } = decodedAccessToken;
+                        localStorage.setItem('authToken', accessToken);
+                        localStorage.setItem('refreshToken', refreshToken);
                         setUser({
                             username: '',
                             email: '',
