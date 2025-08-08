@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         const token = localStorage.getItem('authToken');
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
-            const { userId } = decodedToken;
+            const { userId, isAdmin } = decodedToken;
             axios.get(`/api/users/${userId}`, {
                 headers: {
                     'x-auth-token': token,
@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                 .then((response) => {
                     if (response.status === 200) {
                         setProfilePicture(response.data.profilePicture || null);
-                        setIsAdmin(response.data.isAdmin);
+                        setIsAdmin(isAdmin);
                     }
                 })
                 .catch((err) => {

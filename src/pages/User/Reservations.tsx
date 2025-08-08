@@ -26,7 +26,7 @@ const Reservations: React.FC = () => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
 
     const [page, setPage] = useState(1);
-    const [limit] = useState(1);
+    const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
     const [successMessage, setSuccessMessage] = useState('');
