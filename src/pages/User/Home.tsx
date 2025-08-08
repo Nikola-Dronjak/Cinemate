@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonImg, IonPage, IonRow, useIonViewWillEnter } from '@ionic/react';
+import queryString from 'query-string';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
 
@@ -24,14 +26,36 @@ const Home: React.FC = () => {
 
 	const [errorMessage, setErrorMessage] = useState('');
 
+	const location = useLocation();
+	const history = useHistory();
+
 	useIonViewWillEnter(() => {
-		fetchMovies(page);
+		const { page: queryPage } = queryString.parse(location.search);
+		const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+		setPage(parsedPage);
+		fetchMovies(parsedPage);
 	});
 
-	const fetchMovies = (currentPage: number = page) => {
-		axios.get(`/api/movies?page=${page}&limit=${limit}`)
+	useEffect(() => {
+		if (location.pathname === '/home') {
+			const { page: queryPage } = queryString.parse(location.search);
+			const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+			setPage(parsedPage);
+			fetchMovies(parsedPage);
+		}
+	}, [location.pathname, location.search]);
+
+	const fetchMovies = (currentPage: number = 1) => {
+		axios.get(`/api/movies?page=${currentPage}&limit=${limit}`)
 			.then((response) => {
 				if (response.status === 200) {
+
+					if (!response.data.movies || response.data.movies.length === 0) {
+						setMovies([]);
+						setTotalPages(1);
+						return;
+					}
+
 					const cleanMovies: Movie[] = response.data.movies.map((movie: any) => ({
 						_id: movie._id,
 						title: movie.title,
@@ -47,6 +71,7 @@ const Home: React.FC = () => {
 					setMovies(cleanMovies);
 					setErrorMessage('');
 				} else if (response.status === 404) {
+					setTotalPages(1);
 					setMovies([]);
 					setErrorMessage(response.data.message);
 				}
@@ -55,6 +80,13 @@ const Home: React.FC = () => {
 				setErrorMessage(err.response.data.message);
 				console.error(err.response.data.message || err.message);
 			});
+	};
+
+	const changePage = (newPage: number) => {
+		if (newPage !== page) {
+			history.push(`/home?page=${newPage}`);
+			setPage(newPage);
+		}
 	};
 
 	return (
@@ -66,9 +98,9 @@ const Home: React.FC = () => {
 				<IonContent className='ion-padding'>
 					<p className='ion-padding ion-text-center'>{errorMessage}</p>
 					<div className="ion-text-center">
-						<IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
 						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-						<IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
 					</div>
 				</IonContent>
 			) : (
@@ -96,9 +128,9 @@ const Home: React.FC = () => {
 						</IonRow>
 					</IonGrid>
 					<div className="ion-text-center">
-						<IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
 						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-						<IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
 					</div>
 				</IonContent>
 			)}

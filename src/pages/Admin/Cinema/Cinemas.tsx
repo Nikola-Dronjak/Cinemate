@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory, useLocation } from 'react-router';
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, pinOutline, searchOutline, trashOutline } from 'ionicons/icons';
+import queryString from 'query-string';
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
 
@@ -21,24 +23,42 @@ const Cinemas: React.FC = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    useEffect(() => {
-        fetchCinemas(page);
-    }, [page]);
+    const location = useLocation();
+    const history = useHistory();
 
     useIonViewWillEnter(() => {
-        fetchCinemas(page);
+        const { page: queryPage } = queryString.parse(location.search);
+        const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+        setPage(parsedPage);
+        fetchCinemas(parsedPage);
     });
 
-    const fetchCinemas = (currentPage: number = page) => {
+    useEffect(() => {
+        if (location.pathname === '/admin/cinemas') {
+            const { page: queryPage } = queryString.parse(location.search);
+            const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+            setPage(parsedPage);
+            fetchCinemas(parsedPage);
+        }
+    }, [location.pathname, location.search]);
+
+    const fetchCinemas = (currentPage: number = 1) => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`/api/cinemas?page=${page}&limit=${limit}`, {
+            axios.get(`/api/cinemas?page=${currentPage}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
                 }
             })
                 .then((response) => {
                     if (response.status === 200) {
+
+                        if (!response.data.cinemas || response.data.cinemas.length === 0) {
+                            setCinemas([]);
+                            setTotalPages(1);
+                            return;
+                        }
+
                         const cleanCinemas: Cinema[] = response.data.cinemas.map((cinema: any) => ({
                             _id: cinema._id,
                             name: cinema.name,
@@ -49,6 +69,7 @@ const Cinemas: React.FC = () => {
                         setCinemas(cleanCinemas);
                         setErrorMessage('');
                     } else if (response.status === 404) {
+                        setTotalPages(1);
                         setCinemas([]);
                         setErrorMessage(response.data.message);
                     }
@@ -57,6 +78,13 @@ const Cinemas: React.FC = () => {
                     setErrorMessage(err.response.data.message);
                     console.error(err.response.data.message || err.message);
                 });
+        }
+    };
+
+    const changePage = (newPage: number) => {
+        if (newPage !== page) {
+            history.push(`/admin/cinemas?page=${newPage}`);
+            setPage(newPage);
         }
     };
 
@@ -71,9 +99,14 @@ const Cinemas: React.FC = () => {
                 .then((response) => {
                     if (response.status === 204) {
                         setSuccessMessage("Cinema successfully removed.");
-                        if (cinemas.length === 1 && page > 1) {
-                            setPage(prev => prev - 1);
+                        const updatedCinemas = cinemas.filter(cinema => cinema._id !== cinemaId);
+                        const isLastItemOnPage = updatedCinemas.length === 0;
+                        const newPage = isLastItemOnPage && page > 1 ? page - 1 : page;
+
+                        if (newPage !== page) {
+                            history.push(`/admin/cinemas?page=${newPage}`);
                         } else {
+                            setCinemas(updatedCinemas);
                             fetchCinemas(page);
                         }
                     }
@@ -97,9 +130,9 @@ const Cinemas: React.FC = () => {
                     </div>
                     <p className='ion-padding ion-text-center'>{errorMessage}</p>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
                 </IonContent>
             ) : (
@@ -120,9 +153,9 @@ const Cinemas: React.FC = () => {
                         </IonCard>
                     ))}
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
                     <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                         position: 'fixed',

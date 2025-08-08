@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useHistory, useLocation, useParams } from 'react-router';
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'ionicons/icons';
+import queryString from 'query-string';
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
 
@@ -36,24 +37,42 @@ const Halls: React.FC = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    useEffect(() => {
-        fetchHalls(page);
-    }, [page]);
+    const location = useLocation();
+    const history = useHistory();
 
     useIonViewWillEnter(() => {
-        fetchHalls(page);
+        const { page: queryPage } = queryString.parse(location.search);
+        const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+        setPage(parsedPage);
+        fetchHalls(parsedPage);
     });
 
-    const fetchHalls = (currentPage: number = page) => {
+    useEffect(() => {
+        if (location.pathname === `/admin/cinemas/${cinemaId}`) {
+            const { page: queryPage } = queryString.parse(location.search);
+            const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+            setPage(parsedPage);
+            fetchHalls(parsedPage);
+        }
+    }, [location.pathname, location.search]);
+
+    const fetchHalls = (currentPage: number = 1) => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`/api/cinemas/${cinemaId}/halls?page=${page}&limit=${limit}`, {
+            axios.get(`/api/cinemas/${cinemaId}/halls?page=${currentPage}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
                 }
             })
                 .then((response) => {
                     if (response.status === 200) {
+
+                        if (!response.data.halls || response.data.halls.length === 0) {
+                            setHalls([]);
+                            setTotalPages(1);
+                            return;
+                        }
+
                         const cleanHalls: Hall[] = response.data.halls.map((hall: any) => ({
                             _id: hall._id,
                             name: hall.name,
@@ -64,6 +83,7 @@ const Halls: React.FC = () => {
                         setHalls(cleanHalls);
                         setErrorMessage('');
                     } else if (response.status === 404) {
+                        setTotalPages(1);
                         setHalls([]);
                         setErrorMessage(response.data.message);
                     }
@@ -87,6 +107,13 @@ const Halls: React.FC = () => {
         }
     };
 
+    const changePage = (newPage: number) => {
+        if (newPage !== page) {
+            history.push(`/admin/cinemas/${cinemaId}?page=${newPage}`);
+            setPage(newPage);
+        }
+    };
+
     function deleteHall(hallId: string) {
         const token = localStorage.getItem('authToken');
         if (token) {
@@ -98,9 +125,14 @@ const Halls: React.FC = () => {
                 .then((response) => {
                     if (response.status === 204) {
                         setSuccessMessage("Hall successfully removed.");
-                        if (halls.length === 1 && page > 1) {
-                            setPage(prev => prev - 1);
+                        const updatedHalls = halls.filter(hall => hall._id !== hallId);
+                        const isLastItemOnPage = updatedHalls.length === 0;
+                        const newPage = isLastItemOnPage && page > 1 ? page - 1 : page;
+
+                        if (newPage !== page) {
+                            history.push(`/admin/cinemas/${cinemaId}?page=${newPage}`);
                         } else {
+                            setHalls(updatedHalls);
                             fetchHalls(page);
                         }
                     }
@@ -133,9 +165,9 @@ const Halls: React.FC = () => {
                         </IonCardContent>
                     </IonCard>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
                 </IonContent>
             ) : (
@@ -165,9 +197,9 @@ const Halls: React.FC = () => {
                         </IonCardContent>
                     </IonCard>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
                     <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                         position: 'fixed',

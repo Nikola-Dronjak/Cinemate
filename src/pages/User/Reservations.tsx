@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router';
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
+import queryString from 'query-string';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
 
@@ -24,22 +26,37 @@ const Reservations: React.FC = () => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
 
     const [page, setPage] = useState(1);
-    const [limit] = useState(10);
+    const [limit] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState<string>('');
 
+    const location = useLocation();
+    const history = useHistory();
+
     useIonViewWillEnter(() => {
-        fetchReservations(page);
+        const { page: queryPage } = queryString.parse(location.search);
+        const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+        setPage(parsedPage);
+        fetchReservations(parsedPage);
     });
 
-    const fetchReservations = (currentPage: number = page) => {
+    useEffect(() => {
+        if (location.pathname === '/reservations') {
+            const { page: queryPage } = queryString.parse(location.search);
+            const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
+            setPage(parsedPage);
+            fetchReservations(parsedPage);
+        }
+    }, [location.pathname, location.search]);
+
+    const fetchReservations = (currentPage: number = 1) => {
         const token = localStorage.getItem('authToken');
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             const { userId } = decodedToken;
-            axios.get(`/api/users/${userId}/reservations?page=${page}&limit=${limit}`, {
+            axios.get(`/api/users/${userId}/reservations?page=${currentPage}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
                 }
@@ -47,6 +64,12 @@ const Reservations: React.FC = () => {
                 .then(async (response) => {
                     if (response.status === 200) {
                         const reservationsRaw = response.data.reservationsOfUser;
+
+                        if (!reservationsRaw || reservationsRaw.length === 0) {
+                            setReservations([]);
+                            setTotalPages(1);
+                            return;
+                        }
 
                         const reservationsWithScreeningDetails = await Promise.all(
                             reservationsRaw.map(async (reservation: any) => {
@@ -104,6 +127,7 @@ const Reservations: React.FC = () => {
                         setTotalPages(response.data.totalPages);
                         setReservations(reservationsWithScreeningDetails);
                     } else if (response.status === 404) {
+                        setTotalPages(1);
                         setReservations([]);
                         setErrorMessage(response.data.message);
                     }
@@ -112,6 +136,13 @@ const Reservations: React.FC = () => {
                     setErrorMessage(err.response.data.message);
                     console.error(err.response.data.message || err.message);
                 });
+        }
+    };
+
+    const changePage = (newPage: number) => {
+        if (newPage !== page) {
+            history.push(`reservations?page=${newPage}`);
+            setPage(newPage);
         }
     };
 
@@ -134,9 +165,16 @@ const Reservations: React.FC = () => {
                 .then((response) => {
                     if (response.status === 204) {
                         setSuccessMessage("Reservation successfully removed.");
-                        fetchReservations();
-                    } else {
-                        setErrorMessage(response.data);
+                        const updatedReservations = reservations.filter(reservation => reservation._id !== reservationId);
+                        const isLastItemOnPage = updatedReservations.length === 0;
+                        const newPage = isLastItemOnPage && page > 1 ? page - 1 : page;
+
+                        if (newPage !== page) {
+                            history.push(`reservations?page=${newPage}`);
+                        } else {
+                            setReservations(updatedReservations);
+                            fetchReservations(page);
+                        }
                     }
                 })
                 .catch((err) => {
@@ -157,9 +195,9 @@ const Reservations: React.FC = () => {
                 <IonContent className='ion-padding'>
                     <p className='ion-padding ion-text-center'>{errorMessage}</p>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
                 </IonContent>
             ) : (
@@ -187,9 +225,9 @@ const Reservations: React.FC = () => {
                         </IonRow>
                     </IonGrid>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => setPage(prev => Math.max(prev - 1, 1))}>Previous</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}>Next</IonButton>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
                     <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
                         position: 'fixed',
