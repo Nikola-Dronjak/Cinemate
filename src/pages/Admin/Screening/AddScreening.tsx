@@ -74,8 +74,7 @@ const AddScreening: React.FC = () => {
         hallId: ''
     });
 
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -99,7 +98,7 @@ const AddScreening: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data.message);
+                        setToast({ message: err.response.data.message, color: 'danger' });
                         console.error(err.response.data.message || err.message);
                     });
 
@@ -117,14 +116,13 @@ const AddScreening: React.FC = () => {
                                 city: cinema.city
                             }));
                             setCinemas(cleanCinemas);
-                            setErrorMessage('');
                         } else if (response.status === 404) {
                             setCinemas([]);
-                            setErrorMessage(response.data.message);
+                            setToast({ message: response.data.message, color: 'danger' });
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data.message);
+                        setToast({ message: err.response.data.message, color: 'danger' });
                         console.error(err.response.data.message || err.message);
                     });;
             } else if (hallId) {
@@ -145,7 +143,7 @@ const AddScreening: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data.message);
+                        setToast({ message: err.response.data.message, color: 'danger' });
                         console.error(err.response.data.message || err.message);
                     });
 
@@ -164,14 +162,13 @@ const AddScreening: React.FC = () => {
                                 rating: movie.rating
                             }));
                             setMovies(cleanMovies);
-                            setErrorMessage('');
                         } else if (response.status === 404) {
                             setMovies([]);
-                            setErrorMessage(response.data.message);
+                            setToast({ message: response.data.message, color: 'danger' });
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data.message);
+                        setToast({ message: err.response.data.message, color: 'danger' });
                         console.error(err.response.data.message || err.message);
                     });
             }
@@ -191,14 +188,13 @@ const AddScreening: React.FC = () => {
                                 cinemaId: hall.cinemaId
                             }));
                             setHalls(cleanHalls);
-                            setErrorMessage('');
                         } else if (response.status === 404) {
                             setHalls([]);
-                            setErrorMessage(response.data.message);
+                            setToast({ message: response.data.message, color: 'danger' });
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data.message);
+                        setToast({ message: err.response.data.message, color: 'danger' });
                         console.error(err.response.data.message || err.message);
                     });
             }
@@ -224,7 +220,7 @@ const AddScreening: React.FC = () => {
                 })
                     .then((response) => {
                         if (response.status === 201) {
-                            setSuccessMessage("Screening successfully added.");
+                            setToast({ message: "Screening successfully added.", color: 'success' });
                             if (movieId) {
                                 setMovie({
                                     title: movie.title,
@@ -269,7 +265,7 @@ const AddScreening: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data.message);
+                        setToast({ message: err.response.data.message, color: 'danger' });
                         console.error(err.response.data.message || err.message);
                     });
             }
@@ -352,15 +348,7 @@ const AddScreening: React.FC = () => {
                                             </IonRow>
                                         </IonGrid>
                                     </form>
-                                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                                        position: 'fixed',
-                                        top: '10px',
-                                        right: '10px',
-                                        width: 'auto',
-                                        maxWidth: '300px',
-                                        zIndex: 9999
-                                    }} />
-                                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                                         position: 'fixed',
                                         top: '10px',
                                         right: '10px',

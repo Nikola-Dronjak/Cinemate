@@ -49,8 +49,7 @@ const MovieDetails: React.FC = () => {
     const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
 
     const location = useLocation();
     const history = useHistory();
@@ -116,11 +115,11 @@ const MovieDetails: React.FC = () => {
                 } else if (response.status === 404) {
                     setTotalPages(1);
                     setScreenings([]);
-                    setErrorMessage(response.data.message);
+                    setToast({ message: response.data.message, color: 'danger' });
                 }
             })
             .catch((err) => {
-                setErrorMessage(err.response.data.message);
+                setToast({ message: err.response.data.message, color: 'danger' });
                 console.error(err.response.data.message || err.message);
             });
 
@@ -132,7 +131,7 @@ const MovieDetails: React.FC = () => {
                 }
             })
             .catch((err) => {
-                setErrorMessage(err.response.data.message);
+                setToast({ message: err.response.data.message, color: 'danger' });
                 console.error(err.response.data.message || err.message);
             });
     };
@@ -172,11 +171,11 @@ const MovieDetails: React.FC = () => {
             })
                 .then((response) => {
                     if (response.status === 201) {
-                        setSuccessMessage("Reservation successfully added.");
+                        setToast({ message: "Reservation successfully added.", color: 'success' });
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.message);
+                    setToast({ message: err.response.data.message, color: 'danger' });
                     console.error(err.response.data.message || err.message);
                 });
         }
@@ -221,7 +220,7 @@ const MovieDetails: React.FC = () => {
                             <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
                         </IonCardHeader>
                         <IonCardContent className='ion-padding'>
-                            <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                            <p className='ion-padding ion-text-center'>{toast.message}</p>
                         </IonCardContent>
                         <div className="ion-text-center">
                             <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
@@ -283,15 +282,7 @@ const MovieDetails: React.FC = () => {
                             <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                         </div>
                     </IonCard>
-                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                        position: 'fixed',
-                        top: '10px',
-                        right: '10px',
-                        width: 'auto',
-                        maxWidth: '300px',
-                        zIndex: 9999
-                    }} />
-                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',
                         top: '10px',
                         right: '10px',

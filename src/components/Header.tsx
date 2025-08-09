@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useHistory } from 'react-router';
 import { IonButton, IonButtons, IonIcon, IonPopover, IonTitle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
-import axios from '../api/AxiosInstance';
 import { buildOutline, exitOutline, personCircleOutline, ticketOutline } from 'ionicons/icons';
+import axios from '../api/AxiosInstance';
 
 interface HeaderProps {
     title: string;

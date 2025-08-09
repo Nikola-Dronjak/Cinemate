@@ -15,7 +15,6 @@ const processQueue = (error: any, token: string | null = null) => {
             prom.resolve(token!);
         }
     });
-
     failedQueue = [];
 };
 
@@ -24,10 +23,16 @@ axiosInstance.interceptors.response.use(
     async error => {
         const originalRequest = error.config;
 
+        const excludedEndpoints = [
+            '/login',
+            '/register'
+        ];
+
         if (
             error.response?.status === 401 &&
             !originalRequest._retry &&
-            !originalRequest.url.includes('/refresh')
+            !originalRequest.url.includes('/refresh') &&
+            !excludedEndpoints.some(endpoint => originalRequest.url.includes(endpoint))
         ) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -45,7 +50,11 @@ axiosInstance.interceptors.response.use(
                 const refreshToken = localStorage.getItem('refreshToken');
                 if (!refreshToken) throw new Error('No refresh token available.');
 
-                const response = await axios.post(`${import.meta.env.VITE_SERVER_ADDRESS}/api/users/refresh-token`, { refreshToken });
+                const response = await axios.post(
+                    `${import.meta.env.VITE_SERVER_ADDRESS}/api/users/refresh-token`,
+                    { refreshToken }
+                );
+
                 const newToken = response.data.accessToken;
                 localStorage.setItem('authToken', newToken);
 

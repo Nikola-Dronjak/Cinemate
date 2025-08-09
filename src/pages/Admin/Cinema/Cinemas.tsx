@@ -20,8 +20,7 @@ const Cinemas: React.FC = () => {
     const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
 
     const location = useLocation();
     const history = useHistory();
@@ -67,15 +66,14 @@ const Cinemas: React.FC = () => {
                         }));
                         setTotalPages(response.data.totalPages);
                         setCinemas(cleanCinemas);
-                        setErrorMessage('');
                     } else if (response.status === 404) {
                         setTotalPages(1);
                         setCinemas([]);
-                        setErrorMessage(response.data.message);
+                        setToast({ message: response.data.message, color: 'danger' });
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.message);
+                    setToast({ message: err.response.data.message, color: 'danger' });
                     console.error(err.response.data.message || err.message);
                 });
         }
@@ -98,7 +96,7 @@ const Cinemas: React.FC = () => {
             })
                 .then((response) => {
                     if (response.status === 204) {
-                        setSuccessMessage("Cinema successfully removed.");
+                        setToast({ message: "Cinema successfully removed.", color: 'success' });
                         const updatedCinemas = cinemas.filter(cinema => cinema._id !== cinemaId);
                         const isLastItemOnPage = updatedCinemas.length === 0;
                         const newPage = isLastItemOnPage && page > 1 ? page - 1 : page;
@@ -112,7 +110,7 @@ const Cinemas: React.FC = () => {
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.message);
+                    setToast({ message: err.response.data.message, color: 'danger' });
                     console.error(err.response.data.message || err.message);
                 });
         }
@@ -128,7 +126,7 @@ const Cinemas: React.FC = () => {
                     <div className='ion-text-right'>
                         <IonButton routerLink='/admin/cinemas/add' fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
                     </div>
-                    <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                    <p className='ion-padding ion-text-center'>{toast.message}</p>
                     <div className="ion-text-center">
                         <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
@@ -157,15 +155,7 @@ const Cinemas: React.FC = () => {
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
                         <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
-                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                        position: 'fixed',
-                        top: '10px',
-                        right: '10px',
-                        width: 'auto',
-                        maxWidth: '300px',
-                        zIndex: 9999
-                    }} />
-                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',
                         top: '10px',
                         right: '10px',

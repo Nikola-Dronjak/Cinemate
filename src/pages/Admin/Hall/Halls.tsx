@@ -34,8 +34,7 @@ const Halls: React.FC = () => {
     const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
 
     const location = useLocation();
     const history = useHistory();
@@ -81,15 +80,14 @@ const Halls: React.FC = () => {
                         }));
                         setTotalPages(response.data.totalPages);
                         setHalls(cleanHalls);
-                        setErrorMessage('');
                     } else if (response.status === 404) {
                         setTotalPages(1);
                         setHalls([]);
-                        setErrorMessage(response.data.message);
+                        setToast({ message: response.data.message, color: 'danger' });
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.message);
+                    setToast({ message: err.response.data.message, color: 'danger' });
                     console.error(err.response.data.message || err.message);
                 });
 
@@ -101,7 +99,7 @@ const Halls: React.FC = () => {
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.message);
+                    setToast({ message: err.response.data.message, color: 'danger' });
                     console.error(err.response.data.message || err.message);
                 });
         }
@@ -124,7 +122,7 @@ const Halls: React.FC = () => {
             })
                 .then((response) => {
                     if (response.status === 204) {
-                        setSuccessMessage("Hall successfully removed.");
+                        setToast({ message: "Hall successfully removed.", color: 'success' });
                         const updatedHalls = halls.filter(hall => hall._id !== hallId);
                         const isLastItemOnPage = updatedHalls.length === 0;
                         const newPage = isLastItemOnPage && page > 1 ? page - 1 : page;
@@ -138,7 +136,7 @@ const Halls: React.FC = () => {
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.message);
+                    setToast({ message: err.response.data.message, color: 'danger' });
                     console.error(err.response.data.message || err.message);
                 });
         }
@@ -161,7 +159,7 @@ const Halls: React.FC = () => {
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>
-                            <p className='ion-padding ion-text-center'>{errorMessage}</p>
+                            <p className='ion-padding ion-text-center'>{toast.message}</p>
                         </IonCardContent>
                     </IonCard>
                     <div className="ion-text-center">
@@ -201,15 +199,7 @@ const Halls: React.FC = () => {
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
                         <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
-                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                        position: 'fixed',
-                        top: '10px',
-                        right: '10px',
-                        width: 'auto',
-                        maxWidth: '300px',
-                        zIndex: 9999
-                    }} />
-                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',
                         top: '10px',
                         right: '10px',

@@ -34,8 +34,7 @@ const AddHall: React.FC = () => {
         cinemaId: cinemaId
     });
 
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
     const [validationErrors, setValidationErrors] = useState<{
         name?: string;
         numberOfSeats?: string;
@@ -54,7 +53,7 @@ const AddHall: React.FC = () => {
                 }
             })
             .catch((err) => {
-                setErrorMessage(err.response.data.message);
+                setToast({ message: err.response.data.message, color: 'danger' });
                 console.error(err.response.data.message || err.message);
             });
     }, [cinemaId]);
@@ -78,7 +77,7 @@ const AddHall: React.FC = () => {
                 })
                     .then((response) => {
                         if (response.status === 201) {
-                            setSuccessMessage("Hall successfully added.");
+                            setToast({ message: "Hall successfully added.", color: 'success' });
                             setHall({
                                 name: '',
                                 numberOfSeats: NaN,
@@ -87,7 +86,7 @@ const AddHall: React.FC = () => {
                         }
                     })
                     .catch((err) => {
-                        setErrorMessage(err.response.data.message);
+                        setToast({ message: err.response.data.message, color: 'danger' });
                         console.error(err.response.data.message || err.message);
                     });
             }
@@ -119,15 +118,7 @@ const AddHall: React.FC = () => {
                                             <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
                                         </IonRow>
                                     </form>
-                                    <IonToast isOpen={successMessage !== ''} message={successMessage} duration={3000} color={'success'} onDidDismiss={() => setSuccessMessage('')} style={{
-                                        position: 'fixed',
-                                        top: '10px',
-                                        right: '10px',
-                                        width: 'auto',
-                                        maxWidth: '300px',
-                                        zIndex: 9999
-                                    }} />
-                                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                                         position: 'fixed',
                                         top: '10px',
                                         right: '10px',

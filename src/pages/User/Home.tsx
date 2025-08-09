@@ -24,7 +24,7 @@ const Home: React.FC = () => {
 	const [limit] = useState(10);
 	const [totalPages, setTotalPages] = useState(1);
 
-	const [errorMessage, setErrorMessage] = useState('');
+	const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
 
 	const location = useLocation();
 	const history = useHistory();
@@ -69,15 +69,14 @@ const Home: React.FC = () => {
 					}));
 					setTotalPages(response.data.totalPages);
 					setMovies(cleanMovies);
-					setErrorMessage('');
 				} else if (response.status === 404) {
 					setTotalPages(1);
 					setMovies([]);
-					setErrorMessage(response.data.message);
+					setToast({ message: response.data.message, color: 'danger' });
 				}
 			})
 			.catch((err) => {
-				setErrorMessage(err.response.data.message);
+				setToast({ message: err.response.data.message, color: 'danger' });
 				console.error(err.response.data.message || err.message);
 			});
 	};
@@ -96,7 +95,7 @@ const Home: React.FC = () => {
 			</IonHeader>
 			{movies.length === 0 ? (
 				<IonContent className='ion-padding'>
-					<p className='ion-padding ion-text-center'>{errorMessage}</p>
+					<p className='ion-padding ion-text-center'>{toast.message}</p>
 					<div className="ion-text-center">
 						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
 						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>

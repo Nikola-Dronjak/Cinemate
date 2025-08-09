@@ -21,7 +21,7 @@ const Register: React.FC = () => {
         password: ''
     });
 
-    const [errorMessage, setErrorMessage] = useState('');
+    const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
     const [validationErrors, setValidationErrors] = useState<{
         username?: string;
         email?: string;
@@ -62,7 +62,7 @@ const Register: React.FC = () => {
                     }
                 })
                 .catch((err) => {
-                    setErrorMessage(err.response.data.message);
+                    setToast({ message: err.response.data.message, color: 'danger' });
                     console.error(err.response.data.message || err.message);
                 });
         }
@@ -95,7 +95,7 @@ const Register: React.FC = () => {
                                         </IonRow>
                                     </form>
                                     <p>Already have an account? <a href='/login'>Sign in!</a></p>
-                                    <IonToast isOpen={errorMessage !== ''} message={errorMessage} duration={3000} color={'danger'} onDidDismiss={() => setErrorMessage('')} style={{
+                                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                                         position: 'fixed',
                                         top: '10px',
                                         right: '10px',
