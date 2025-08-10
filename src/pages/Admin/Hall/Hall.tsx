@@ -97,15 +97,16 @@ const Hall: React.FC = () => {
                         );
                         setTotalPages(response.data.totalPages);
                         setScreenings(screeningsWithTitles);
-                    } else if (response.status === 404) {
-                        setTotalPages(1);
-                        setScreenings([]);
-                        setToast({ message: response.data.message, color: 'danger' });
                     }
                 })
                 .catch((err) => {
-                    setToast({ message: err.response.data.message, color: 'danger' });
-                    console.error(err.response.data.message || err.message);
+                    if (err.response.status === 404) {
+                        setTotalPages(1);
+                        setScreenings([]);
+                    } else {
+                        setToast({ message: err.response.data.message, color: 'danger' });
+                        console.error(err.response.data.message || err.message);
+                    }
                 });
 
             axios.get(`/api/halls/${hallId}`)
@@ -182,7 +183,7 @@ const Hall: React.FC = () => {
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>
-                            <p className='ion-padding ion-text-center'>{toast.message}</p>
+                            <p className='ion-padding ion-text-center'>There are no screenings in this hall right now.</p>
                         </IonCardContent>
                         <div className="ion-text-center">
                             <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
@@ -190,6 +191,14 @@ const Hall: React.FC = () => {
                             <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                         </div>
                     </IonCard>
+                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
                 </IonContent>
             ) : (
                 <IonContent className='ion-padding'>

@@ -125,15 +125,16 @@ const Reservations: React.FC = () => {
                         );
                         setTotalPages(response.data.totalPages);
                         setReservations(reservationsWithScreeningDetails);
-                    } else if (response.status === 404) {
-                        setTotalPages(1);
-                        setReservations([]);
-                        setToast({ message: response.data.message, color: 'danger' });
                     }
                 })
                 .catch((err) => {
-                    setToast({ message: err.response.data.message, color: 'danger' });
-                    console.error(err.response.data.message || err.message);
+                    if (err.response.status === 404) {
+                        setTotalPages(1);
+                        setReservations([]);
+                    } else {
+                        setToast({ message: err.response.data.message, color: 'danger' });
+                        console.error(err.response.data.message || err.message);
+                    }
                 });
         }
     };
@@ -192,12 +193,20 @@ const Reservations: React.FC = () => {
             </IonHeader>
             {reservations.length === 0 ? (
                 <IonContent className='ion-padding'>
-                    <p className='ion-padding ion-text-center'>{toast.message}</p>
+                    <p className='ion-padding ion-text-center'>No reservations were found for this user.</p>
                     <div className="ion-text-center">
                         <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
                         <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
+                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
                 </IonContent>
             ) : (
                 <IonContent className='ion-padding'>

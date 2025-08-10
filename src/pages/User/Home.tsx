@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonImg, IonPage, IonRow, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonImg, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
 import queryString from 'query-string';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
@@ -69,15 +69,16 @@ const Home: React.FC = () => {
 					}));
 					setTotalPages(response.data.totalPages);
 					setMovies(cleanMovies);
-				} else if (response.status === 404) {
-					setTotalPages(1);
-					setMovies([]);
-					setToast({ message: response.data.message, color: 'danger' });
 				}
 			})
 			.catch((err) => {
-				setToast({ message: err.response.data.message, color: 'danger' });
-				console.error(err.response.data.message || err.message);
+				if (err.response.status === 404) {
+					setTotalPages(1);
+					setMovies([]);
+				} else {
+					setToast({ message: err.response.data.message, color: 'danger' });
+					console.error(err.response.data.message || err.message);
+				}
 			});
 	};
 
@@ -95,12 +96,20 @@ const Home: React.FC = () => {
 			</IonHeader>
 			{movies.length === 0 ? (
 				<IonContent className='ion-padding'>
-					<p className='ion-padding ion-text-center'>{toast.message}</p>
+					<p className='ion-padding ion-text-center'>There are no movies in the database right now.</p>
 					<div className="ion-text-center">
 						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
 						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
 						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
 					</div>
+					<IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
+						position: 'fixed',
+						top: '10px',
+						right: '10px',
+						width: 'auto',
+						maxWidth: '300px',
+						zIndex: 9999
+					}} />
 				</IonContent>
 			) : (
 				<IonContent className='ion-padding'>
@@ -131,6 +140,14 @@ const Home: React.FC = () => {
 						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
 						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
 					</div>
+					<IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
+						position: 'fixed',
+						top: '10px',
+						right: '10px',
+						width: 'auto',
+						maxWidth: '300px',
+						zIndex: 9999
+					}} />
 				</IonContent>
 			)}
 		</IonPage>

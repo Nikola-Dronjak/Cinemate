@@ -70,15 +70,16 @@ const Movies: React.FC = () => {
                     }));
                     setTotalPages(response.data.totalPages);
                     setMovies(cleanMovies);
-                } else if (response.status === 404) {
-                    setTotalPages(1);
-                    setMovies([]);
-                    setToast({ message: response.data.message, color: 'danger' });
                 }
             })
             .catch((err) => {
-                setToast({ message: err.response.data.message, color: 'danger' });
-                console.error(err.response.data.message || err.message);
+                if (err.response.status === 404) {
+                    setTotalPages(1);
+                    setMovies([]);
+                } else {
+                    setToast({ message: err.response.data.message, color: 'danger' });
+                    console.error(err.response.data.message || err.message);
+                }
             });
     };
 
@@ -129,12 +130,20 @@ const Movies: React.FC = () => {
                     <div className='ion-text-right'>
                         <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>Add<IonIcon icon={addCircleOutline} /></IonButton>
                     </div >
-                    <p className='ion-padding ion-text-center'>{toast.message}</p>
+                    <p className='ion-padding ion-text-center'>There are no movies in the database right now.</p>
                     <div className="ion-text-center">
                         <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
                         <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
+                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
                 </IonContent >
             ) : (
                 <IonContent className='ion-padding'>

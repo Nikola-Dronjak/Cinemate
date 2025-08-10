@@ -80,15 +80,16 @@ const Halls: React.FC = () => {
                         }));
                         setTotalPages(response.data.totalPages);
                         setHalls(cleanHalls);
-                    } else if (response.status === 404) {
-                        setTotalPages(1);
-                        setHalls([]);
-                        setToast({ message: response.data.message, color: 'danger' });
                     }
                 })
                 .catch((err) => {
-                    setToast({ message: err.response.data.message, color: 'danger' });
-                    console.error(err.response.data.message || err.message);
+                    if (err.response.status === 404) {
+                        setTotalPages(1);
+                        setHalls([]);
+                    } else {
+                        setToast({ message: err.response.data.message, color: 'danger' });
+                        console.error(err.response.data.message || err.message);
+                    }
                 });
 
             axios.get(`/api/cinemas/${cinemaId}`)
@@ -159,7 +160,7 @@ const Halls: React.FC = () => {
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>
-                            <p className='ion-padding ion-text-center'>{toast.message}</p>
+                            <p className='ion-padding ion-text-center'>This cinema doesnt have any halls right now.</p>
                         </IonCardContent>
                     </IonCard>
                     <div className="ion-text-center">
@@ -167,6 +168,14 @@ const Halls: React.FC = () => {
                         <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
                         <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
                     </div>
+                    <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
+                        position: 'fixed',
+                        top: '10px',
+                        right: '10px',
+                        width: 'auto',
+                        maxWidth: '300px',
+                        zIndex: 9999
+                    }} />
                 </IonContent>
             ) : (
                 <IonContent className="ion-padding">
