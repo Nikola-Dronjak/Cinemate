@@ -73,7 +73,7 @@ const Movie: React.FC = () => {
     const fetchScreeningsOfMovie = (currentPage: number = 1) => {
         const token = localStorage.getItem('authToken');
         if (token) {
-            axios.get(`/api/movies/${movieId}/screenings?page=${currentPage}&limit=${limit}`, {
+            axios.get(`/api/movies/${movieId}/screenings?page=${currentPage}&limit=${limit}&upcomingOnly=${false}`, {
                 headers: {
                     'x-auth-token': token,
                 }

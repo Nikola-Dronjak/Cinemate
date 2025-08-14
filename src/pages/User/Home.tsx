@@ -46,7 +46,7 @@ const Home: React.FC = () => {
 	}, [location.pathname, location.search]);
 
 	const fetchMovies = (currentPage: number = 1) => {
-		axios.get(`/api/movies?page=${currentPage}&limit=${limit}`)
+		axios.get(`/api/movies?page=${currentPage}&limit=${limit}&upcomingOnly=${true}`)
 			.then((response) => {
 				if (response.status === 200) {
 

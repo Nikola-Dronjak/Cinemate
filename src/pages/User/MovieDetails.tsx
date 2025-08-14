@@ -71,7 +71,7 @@ const MovieDetails: React.FC = () => {
     }, [location.pathname, location.search]);
 
     const fetchMovieDetails = (currentPage: number = 1) => {
-        axios.get(`/api/movies/${movieId}/screenings?page=${currentPage}&limit=${limit}`)
+        axios.get(`/api/movies/${movieId}/screenings?page=${currentPage}&limit=${limit}&upcomingOnly=${true}`)
             .then(async (response) => {
                 if (response.status === 200) {
                     const screeningsRaw = response.data.screeningsOfMovie;
@@ -142,14 +142,6 @@ const MovieDetails: React.FC = () => {
             history.push(`/home/details/${movieId}?page=${newPage}`);
             setPage(newPage);
         }
-    };
-
-    const isFutureScreening = (screeningDate: string) => {
-        const today = new Date();
-        const screeningDateTime = new Date(screeningDate);
-        const diffTime = screeningDateTime.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays > 1;
     };
 
     const isLoggedIn = () => {
@@ -272,7 +264,7 @@ const MovieDetails: React.FC = () => {
                             <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
                         </IonCardHeader>
                         <IonCardContent className='ion-padding'>
-                            {screenings.filter(screening => isFutureScreening(screening.date)).map(screening => (
+                            {screenings.map(screening => (
                                 <IonCard className='ion-padding' key={screening._id} color={'light'}>
                                     <IonCardHeader>
                                         <IonCardTitle>{screening.cinemaName}, {screening.hallName}</IonCardTitle>
