@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router';
-import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
-import { addCircleOutline, calendarOutline, createOutline, ticketOutline, trashOutline } from 'ionicons/icons';
+import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonLabel, IonPage, IonSegment, IonSegmentButton, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
+import { addCircleOutline, calendarOutline, cashOutline, createOutline, ticketOutline, trashOutline } from 'ionicons/icons';
 import queryString from 'query-string';
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
@@ -18,10 +18,13 @@ interface Screening {
     date: string;
     time: string;
     endTime: string;
-    numberOfAvailableSeats: number;
     movieId: string;
     movieTitle?: string;
     hallId: string;
+    numberOfAvailableSeats: number;
+    priceEUR: number;
+    priceUSD: number;
+    priceCHF: number;
 }
 
 const Hall: React.FC = () => {
@@ -33,6 +36,8 @@ const Hall: React.FC = () => {
     })
 
     const [screenings, setScreenings] = useState<Screening[]>([]);
+
+    const [currency, setCurrency] = useState<'EUR' | 'USD' | 'CHF'>('EUR');
 
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
@@ -209,6 +214,17 @@ const Hall: React.FC = () => {
                                 <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
                             </IonButtons>
                         </IonToolbar>
+                        <IonSegment value={currency} onIonChange={(e) => setCurrency(e.detail.value as any)}>
+                            <IonSegmentButton value="EUR">
+                                <IonLabel>EUR (€)</IonLabel>
+                            </IonSegmentButton>
+                            <IonSegmentButton value="USD">
+                                <IonLabel>USD ($)</IonLabel>
+                            </IonSegmentButton>
+                            <IonSegmentButton value="CHF">
+                                <IonLabel>CHF (Fr)</IonLabel>
+                            </IonSegmentButton>
+                        </IonSegment>
                         <IonCardContent>
                             {screenings.map(screening => (
                                 <IonCard className='ion-padding' key={screening._id} color={'light'}>
@@ -216,6 +232,21 @@ const Hall: React.FC = () => {
                                         <IonCardTitle>{screening.movieTitle}</IonCardTitle>
                                         <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
                                         <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
+                                        <IonCardSubtitle><IonIcon icon={cashOutline} /> Price: {
+                                            (() => {
+                                                switch (currency) {
+                                                    case 'EUR':
+                                                        return `${screening.priceEUR} EUR`;
+                                                    case 'USD':
+                                                        return `${screening.priceUSD?.toFixed(2)} USD`;
+                                                    case 'CHF':
+                                                        return `${screening.priceCHF?.toFixed(2)} CHF`;
+                                                    default:
+                                                        return `${screening.priceEUR} EUR`;
+                                                }
+                                            })()
+                                        }
+                                        </IonCardSubtitle>
                                     </IonCardHeader>
 
                                     {isFutureScreening(screening.date) && (

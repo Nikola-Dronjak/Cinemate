@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
-import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRow, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonLabel, IonPage, IonRow, IonSegment, IonSegmentButton, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import queryString from 'query-string';
 import Header from '../../components/Header';
 import axios from '../../api/AxiosInstance';
@@ -13,9 +13,12 @@ interface Reservation {
         date: string;
         time: string;
         endTime: string;
-        numberOfAvailableSeats: number;
         movieId: string;
         hallId: string;
+        numberOfAvailableSeats: number;
+        priceEUR: number;
+        priceUSD: number;
+        priceCHF: number;
         hallName?: string;
         cinemaName?: string;
         movieTitle?: string;
@@ -24,6 +27,8 @@ interface Reservation {
 
 const Reservations: React.FC = () => {
     const [reservations, setReservations] = useState<Reservation[]>([]);
+
+    const [currency, setCurrency] = useState<'EUR' | 'USD' | 'CHF'>('EUR');
 
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
@@ -210,6 +215,17 @@ const Reservations: React.FC = () => {
                 </IonContent>
             ) : (
                 <IonContent className='ion-padding'>
+                    <IonSegment value={currency} onIonChange={(e) => setCurrency(e.detail.value as any)}>
+                        <IonSegmentButton value="EUR">
+                            <IonLabel>EUR (€)</IonLabel>
+                        </IonSegmentButton>
+                        <IonSegmentButton value="USD">
+                            <IonLabel>USD ($)</IonLabel>
+                        </IonSegmentButton>
+                        <IonSegmentButton value="CHF">
+                            <IonLabel>CHF (Fr)</IonLabel>
+                        </IonSegmentButton>
+                    </IonSegment>
                     <IonGrid>
                         <IonRow>
                             {reservations.map(reservation => (
@@ -221,6 +237,22 @@ const Reservations: React.FC = () => {
                                             <IonCardSubtitle>Hall: {reservation.screening.hallName}</IonCardSubtitle>
                                             <IonCardSubtitle>Date: {reservation.screening.date}</IonCardSubtitle>
                                             <IonCardSubtitle>Time: {reservation.screening.time}</IonCardSubtitle>
+                                            <IonCardSubtitle>
+                                                Price: {
+                                                    (() => {
+                                                        switch (currency) {
+                                                            case 'EUR':
+                                                                return `${reservation.screening.priceEUR} EUR`;
+                                                            case 'USD':
+                                                                return `${reservation.screening.priceUSD?.toFixed(2)} USD`;
+                                                            case 'CHF':
+                                                                return `${reservation.screening.priceCHF?.toFixed(2)} CHF`;
+                                                            default:
+                                                                return `${reservation.screening.priceEUR} EUR`;
+                                                        }
+                                                    })()
+                                                }
+                                            </IonCardSubtitle>
                                         </IonCardHeader>
                                         <IonRow className='ion-justify-content-center'>
                                             {isFutureScreening(reservation.screening.date) && (
