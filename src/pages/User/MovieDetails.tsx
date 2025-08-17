@@ -173,6 +173,7 @@ const MovieDetails: React.FC = () => {
                 .then((response) => {
                     if (response.status === 201) {
                         setToast({ message: "Reservation successfully added.", color: 'success' });
+                        fetchMovieDetails(page);
                     }
                 })
                 .catch((err) => {
