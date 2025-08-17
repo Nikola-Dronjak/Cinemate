@@ -40,7 +40,7 @@ interface Screening {
     movieId: string;
     hallId: string;
     numberOfAvailableSeats: number;
-    priceEUR: number;
+    basePriceEUR: number;
 }
 
 const AddScreening: React.FC = () => {
@@ -73,7 +73,7 @@ const AddScreening: React.FC = () => {
         time: '',
         movieId: '',
         hallId: '',
-        priceEUR: NaN
+        basePriceEUR: NaN
     });
 
     const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
@@ -263,7 +263,7 @@ const AddScreening: React.FC = () => {
                                 time: '',
                                 movieId: '',
                                 hallId: '',
-                                priceEUR: NaN
+                                basePriceEUR: NaN
                             });
                         }
                     })
@@ -317,7 +317,7 @@ const AddScreening: React.FC = () => {
                                                                     {validationErrors.hallId && <span style={{ color: 'red' }}>{validationErrors.hallId}</span>}
                                                                 </>
                                                             )}
-                                                            <IonInput className='ion-margin-top' label='Price' type='number' placeholder='The price of the ticket for the movie screening in euros' labelPlacement='floating' fill='outline' value={screening.priceEUR} onIonInput={(e) => setScreening({ ...screening, priceEUR: parseInt(e.detail.value!, 10) || 0 })} />
+                                                            <IonInput className='ion-margin-top' label='Price' type='number' placeholder='The price of the ticket for the movie screening in euros' labelPlacement='floating' fill='outline' value={screening.basePriceEUR} onIonInput={(e) => setScreening({ ...screening, basePriceEUR: parseInt(e.detail.value!, 10) || 0 })} />
                                                             {validationErrors.priceEUR && <span style={{ color: 'red' }}>{validationErrors.priceEUR}</span>}
                                                         </>
                                                     ) : (
@@ -331,7 +331,7 @@ const AddScreening: React.FC = () => {
                                                             </IonSelect>
                                                             {validationErrors.movieId && <span style={{ color: 'red' }}>{validationErrors.movieId}</span>}
                                                             <IonInput className='ion-margin-top' label='Hall' type='text' labelPlacement='floating' fill='outline' disabled={true} value={`${hall.name}, ${hall.numberOfSeats} seats`} />
-                                                            <IonInput className='ion-margin-top' label='Price' type='number' placeholder='The price of the ticket for the movie screening in euros' labelPlacement='floating' fill='outline' value={screening.priceEUR} onIonInput={(e) => setScreening({ ...screening, priceEUR: parseInt(e.detail.value!, 10) || 0 })} />
+                                                            <IonInput className='ion-margin-top' label='Price' type='number' placeholder='The price of the ticket for the movie screening in euros' labelPlacement='floating' fill='outline' value={screening.basePriceEUR} onIonInput={(e) => setScreening({ ...screening, basePriceEUR: parseInt(e.detail.value!, 10) || 0 })} />
                                                             {validationErrors.priceEUR && <span style={{ color: 'red' }}>{validationErrors.priceEUR}</span>}
                                                         </>
                                                     )}

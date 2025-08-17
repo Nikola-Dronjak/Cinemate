@@ -3,14 +3,14 @@ export async function validateScreening(screening: {
     hallId: string;
     date: string;
     time: string;
-    priceEUR: number;
+    basePriceEUR: number;
 }, selectedCinema: string) {
     const errors: {
         movieId?: string;
         hallId?: string;
         dateTime?: string;
         cinema?: string;
-        priceEUR?: string;
+        basePriceEUR?: string;
     } = {};
 
     if (!screening.movieId) {
@@ -25,10 +25,10 @@ export async function validateScreening(screening: {
         errors.hallId = "Please select a hall.";
     }
 
-    if (isNaN(screening.priceEUR) || !Number.isInteger(screening.priceEUR)) {
-        errors.priceEUR = "The price of the ticket for the movie screening must be an integer.";
-    } else if (screening.priceEUR < 0 || screening.priceEUR > 100) {
-        errors.priceEUR = "The price of the ticket for the movie screening must be a positive number between 0 and 100.";
+    if (isNaN(screening.basePriceEUR) || !Number.isInteger(screening.basePriceEUR)) {
+        errors.basePriceEUR = "The price of the ticket for the movie screening must be an integer.";
+    } else if (screening.basePriceEUR < 0 || screening.basePriceEUR > 100) {
+        errors.basePriceEUR = "The price of the ticket for the movie screening must be a positive number between 0 and 100.";
     }
 
     if (!screening.date || !screening.time) {

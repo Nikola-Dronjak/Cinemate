@@ -26,6 +26,9 @@ interface Screening {
     movieId: string;
     hallId: string;
     numberOfAvailableSeats: number;
+    basePriceEUR: number;
+    basePriceUSD: number;
+    basePriceCHF: number;
     priceEUR: number;
     priceUSD: number;
     priceCHF: number;
@@ -288,15 +291,26 @@ const MovieDetails: React.FC = () => {
                                         <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
                                         <IonCardSubtitle><IonIcon icon={cashOutline} /> Price: {
                                             (() => {
+                                                const renderPrice = (basePrice: number, discountedPrice: number, suffix: string) => {
+                                                    if (basePrice !== discountedPrice) {
+                                                        return (
+                                                            <>
+                                                                <s>{basePrice.toFixed(2)} {suffix}</s> {discountedPrice.toFixed(2)} {suffix}
+                                                            </>
+                                                        );
+                                                    }
+                                                    return `${basePrice.toFixed(2)} ${suffix}`;
+                                                };
+
                                                 switch (currency) {
                                                     case 'EUR':
-                                                        return `${screening.priceEUR} EUR`;
+                                                        return renderPrice(screening.basePriceEUR, screening.priceEUR, 'EUR');
                                                     case 'USD':
-                                                        return `${screening.priceUSD?.toFixed(2)} USD`;
+                                                        return renderPrice(screening.basePriceUSD, screening.priceUSD, 'USD');
                                                     case 'CHF':
-                                                        return `${screening.priceCHF?.toFixed(2)} CHF`;
+                                                        return renderPrice(screening.basePriceCHF, screening.priceCHF, 'CHF');
                                                     default:
-                                                        return `${screening.priceEUR} EUR`;
+                                                        return renderPrice(screening.basePriceEUR, screening.priceEUR, 'EUR');
                                                 }
                                             })()
                                         }

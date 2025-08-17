@@ -16,6 +16,9 @@ interface Reservation {
         movieId: string;
         hallId: string;
         numberOfAvailableSeats: number;
+        basePriceEUR: number;
+        basePriceUSD: number;
+        basePriceCHF: number;
         priceEUR: number;
         priceUSD: number;
         priceCHF: number;
@@ -240,15 +243,26 @@ const Reservations: React.FC = () => {
                                             <IonCardSubtitle>
                                                 Price: {
                                                     (() => {
+                                                        const renderPrice = (basePrice: number, discountedPrice: number, suffix: string) => {
+                                                            if (basePrice !== discountedPrice) {
+                                                                return (
+                                                                    <>
+                                                                        <s>{basePrice.toFixed(2)} {suffix}</s> {discountedPrice.toFixed(2)} {suffix}
+                                                                    </>
+                                                                );
+                                                            }
+                                                            return `${basePrice.toFixed(2)} ${suffix}`;
+                                                        };
+
                                                         switch (currency) {
                                                             case 'EUR':
-                                                                return `${reservation.screening.priceEUR} EUR`;
+                                                                return renderPrice(reservation.screening.basePriceEUR, reservation.screening.priceEUR, 'EUR');
                                                             case 'USD':
-                                                                return `${reservation.screening.priceUSD?.toFixed(2)} USD`;
+                                                                return renderPrice(reservation.screening.basePriceUSD, reservation.screening.priceUSD, 'USD');
                                                             case 'CHF':
-                                                                return `${reservation.screening.priceCHF?.toFixed(2)} CHF`;
+                                                                return renderPrice(reservation.screening.basePriceCHF, reservation.screening.priceCHF, 'CHF');
                                                             default:
-                                                                return `${reservation.screening.priceEUR} EUR`;
+                                                                return renderPrice(reservation.screening.basePriceEUR, reservation.screening.priceEUR, 'EUR');
                                                         }
                                                     })()
                                                 }

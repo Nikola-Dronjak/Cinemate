@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router';
-import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonLabel, IonPage, IonRow, IonSegment, IonSegmentButton, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
-import { addCircleOutline, calendarOutline, cashOutline, createOutline, star, ticketOutline, trashOutline } from 'ionicons/icons';
+import { IonAlert, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonLabel, IonPage, IonRow, IonSegment, IonSegmentButton, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
+import { addCircleOutline, bulbOutline, calendarOutline, cashOutline, createOutline, star, ticketOutline, trashOutline } from 'ionicons/icons';
 import queryString from 'query-string';
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
@@ -26,6 +26,9 @@ interface Screening {
     movieId: string;
     hallId: string;
     numberOfAvailableSeats: number;
+    basePriceEUR: number;
+    basePriceUSD: number;
+    basePriceCHF: number;
     priceEUR: number;
     priceUSD: number;
     priceCHF: number;
@@ -50,11 +53,16 @@ const Movie: React.FC = () => {
 
     const [currency, setCurrency] = useState<'EUR' | 'USD' | 'CHF'>('EUR');
 
+    const [showDiscountModal, setShowDiscountModal] = useState(false);
+    const [selectedScreeningId, setSelectedScreeningId] = useState<string | null>(null);
+
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
     const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
+    const [alertError, setAlertError] = useState<string>('');
+    const [alertKey, setAlertKey] = useState(0);
 
     const location = useLocation();
     const history = useHistory();
@@ -148,6 +156,29 @@ const Movie: React.FC = () => {
                 });
         }
     };
+
+    async function addDiscount(screeningId: string, discountAmount: number) {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            axios.put(`/api/screenings/${screeningId}/discount`,
+                { discount: discountAmount },
+                {
+                    headers: {
+                        'x-auth-token': token,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+                .then(() => {
+                    setToast({ message: "Discount applied successfully.", color: "success" });
+                    fetchScreeningsOfMovie(page);
+                })
+                .catch(err => {
+                    setToast({ message: err.response.data.message, color: "danger" });
+                    console.error(err.response.data.message || err.message);
+                });
+        }
+    }
 
     const changePage = (newPage: number) => {
         if (newPage !== page) {
@@ -302,6 +333,46 @@ const Movie: React.FC = () => {
                                 <IonLabel>CHF (Fr)</IonLabel>
                             </IonSegmentButton>
                         </IonSegment>
+                        <IonAlert key={alertKey} isOpen={showDiscountModal} onDidDismiss={() => {
+                            setShowDiscountModal(false);
+                            setAlertError('');
+                        }}
+                            header="Add Discount"
+                            message={alertError}
+                            inputs={[
+                                {
+                                    name: 'discount',
+                                    type: 'number',
+                                    min: 0,
+                                    max: 100,
+                                    placeholder: 'The discount amount (0-100%)'
+                                }
+                            ]}
+                            buttons={[
+                                {
+                                    text: 'Cancel',
+                                    role: 'cancel',
+                                    handler: () => setAlertError('')
+                                },
+                                {
+                                    text: 'Save',
+                                    handler: async (data) => {
+                                        const value = parseFloat(data.discount);
+
+                                        if (isNaN(value) || value < 0 || value > 100) {
+                                            setAlertError('Please enter a discount between 0 and 100.');
+                                            return false;
+                                        }
+
+                                        await addDiscount(selectedScreeningId!, value);
+                                        setShowDiscountModal(false);
+                                        setAlertError('');
+                                        setAlertKey(alertKey + 1);
+                                        return true;
+                                    }
+                                }
+                            ]}
+                        />
                         <IonCardContent className='ion-padding'>
                             {screenings.map(screening => (
                                 <IonCard className='ion-padding' key={screening._id} color={'light'}>
@@ -311,23 +382,34 @@ const Movie: React.FC = () => {
                                         <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
                                         <IonCardSubtitle><IonIcon icon={cashOutline} /> Price: {
                                             (() => {
+                                                const renderPrice = (basePrice: number, discountedPrice: number, suffix: string) => {
+                                                    if (basePrice !== discountedPrice) {
+                                                        return (
+                                                            <>
+                                                                <s>{basePrice.toFixed(2)} {suffix}</s> {discountedPrice.toFixed(2)} {suffix}
+                                                            </>
+                                                        );
+                                                    }
+                                                    return `${basePrice.toFixed(2)} ${suffix}`;
+                                                };
+
                                                 switch (currency) {
                                                     case 'EUR':
-                                                        return `${screening.priceEUR} EUR`;
+                                                        return renderPrice(screening.basePriceEUR, screening.priceEUR, 'EUR');
                                                     case 'USD':
-                                                        return `${screening.priceUSD?.toFixed(2)} USD`;
+                                                        return renderPrice(screening.basePriceUSD, screening.priceUSD, 'USD');
                                                     case 'CHF':
-                                                        return `${screening.priceCHF?.toFixed(2)} CHF`;
+                                                        return renderPrice(screening.basePriceCHF, screening.priceCHF, 'CHF');
                                                     default:
-                                                        return `${screening.priceEUR} EUR`;
+                                                        return renderPrice(screening.basePriceEUR, screening.priceEUR, 'EUR');
                                                 }
                                             })()
                                         }
                                         </IonCardSubtitle>
                                     </IonCardHeader>
-
                                     {isFutureScreening(screening.date) && (
                                         <>
+                                            <IonButton onClick={() => { setSelectedScreeningId(screening._id); setShowDiscountModal(true); }} fill='solid' color={'success'}>Add Discount <IonIcon icon={bulbOutline} /></IonButton>
                                             <IonButton routerLink={`/admin/screenings/update/${screening._id}/movie/${movieId}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
                                             <IonButton onClick={() => deleteScreening(screening._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
                                         </>
