@@ -26,7 +26,8 @@ const Halls: React.FC = () => {
         name: '',
         address: '',
         city: ''
-    })
+    });
+    const [role, setRole] = useState<string>('');
 
     const [halls, setHalls] = useState<Hall[]>([]);
 
@@ -58,6 +59,8 @@ const Halls: React.FC = () => {
     const fetchHalls = (currentPage: number = 1) => {
         const token = localStorage.getItem('authToken');
         if (token) {
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            setRole(decodedToken.role);
             axios.get(`/api/cinemas/${cinemaId}/halls?page=${currentPage}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
@@ -197,8 +200,12 @@ const Halls: React.FC = () => {
                                     </IonCardHeader>
 
                                     <IonButton routerLink={`/admin/halls/${hall._id}`} fill='solid' color={'primary'}>View <IonIcon icon={searchOutline} /></IonButton>
-                                    <IonButton routerLink={`/admin/halls/update/${hall._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                                    <IonButton onClick={() => deleteHall(hall._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                                    {role === 'Admin' && (
+                                        <>
+                                            <IonButton routerLink={`/admin/halls/update/${hall._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
+                                            <IonButton onClick={() => deleteHall(hall._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                                        </>
+                                    )}
                                 </IonCard>
                             ))}
                         </IonCardContent>

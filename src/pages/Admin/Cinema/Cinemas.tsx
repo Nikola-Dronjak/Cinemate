@@ -15,6 +15,7 @@ interface Cinema {
 
 const Cinemas: React.FC = () => {
     const [cinemas, setCinemas] = useState<Cinema[]>([]);
+    const [role, setRole] = useState<string>('');
 
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
@@ -44,6 +45,8 @@ const Cinemas: React.FC = () => {
     const fetchCinemas = (currentPage: number = 1) => {
         const token = localStorage.getItem('authToken');
         if (token) {
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            setRole(decodedToken.role);
             axios.get(`/api/cinemas?page=${currentPage}&limit=${limit}`, {
                 headers: {
                     'x-auth-token': token,
@@ -155,8 +158,12 @@ const Cinemas: React.FC = () => {
                             </IonCardHeader>
 
                             <IonButton routerLink={`/admin/cinemas/${cinema._id}`} fill='solid' color={'primary'}>View <IonIcon icon={searchOutline} /></IonButton>
-                            <IonButton routerLink={`/admin/cinemas/update/${cinema._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                            <IonButton onClick={() => deleteCinema(cinema._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                            {role === 'Admin' && (
+                                <>
+                                    <IonButton routerLink={`/admin/cinemas/update/${cinema._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
+                                    <IonButton onClick={() => deleteCinema(cinema._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                                </>
+                            )}
                         </IonCard>
                     ))}
                     <div className="ion-text-center">

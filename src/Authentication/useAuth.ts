@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { UserRoles } from '../enums/UserRoles';
 
 interface AuthState {
     isAuthenticated: boolean;
-    isAdmin: boolean;
+    role: UserRoles | null;
     loading: boolean;
 }
 
 const useAuth = (): AuthState => {
     const [authState, setAuthState] = useState<AuthState>({
         isAuthenticated: false,
-        isAdmin: false,
+        role: null,
         loading: true,
     });
 
@@ -21,21 +22,21 @@ const useAuth = (): AuthState => {
                 const decoded_payload: any = jwtDecode(token);
                 setAuthState({
                     isAuthenticated: true,
-                    isAdmin: decoded_payload.isAdmin,
+                    role: decoded_payload.role as UserRoles,
                     loading: false,
                 });
             } catch (error) {
                 console.error('Invalid token', error);
                 setAuthState({
                     isAuthenticated: false,
-                    isAdmin: false,
+                    role: null,
                     loading: false,
                 });
             }
         } else {
             setAuthState({
                 isAuthenticated: false,
-                isAdmin: false,
+                role: null,
                 loading: false,
             });
         }

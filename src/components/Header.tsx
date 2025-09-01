@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import { IonButton, IonButtons, IonIcon, IonPopover, IonTitle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { buildOutline, exitOutline, personCircleOutline, ticketOutline } from 'ionicons/icons';
 import axios from '../api/AxiosInstance';
+import { UserRoles } from '../enums/UserRoles';
 
 interface HeaderProps {
     title: string;
@@ -10,7 +11,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
-    const [isAdmin, setIsAdmin] = useState<boolean>(false);
+    const [role, setRole] = useState<string>('');
 
     const [showPopover, setShowPopover] = useState(false);
     const [popoverEvent, setPopoverEvent] = useState<MouseEvent | undefined>(undefined);
@@ -25,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         const token = localStorage.getItem('authToken');
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
-            const { userId, isAdmin } = decodedToken;
+            const { userId, role } = decodedToken;
             axios.get(`/api/users/${userId}`, {
                 headers: {
                     'x-auth-token': token,
@@ -34,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                 .then((response) => {
                     if (response.status === 200) {
                         setProfilePicture(response.data.profilePicture || null);
-                        setIsAdmin(isAdmin);
+                        setRole(role);
                     }
                 })
                 .catch((err) => {
@@ -95,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                                 <IonPopover event={popoverEvent} isOpen={showPopover} onDidDismiss={() => setShowPopover(false)}>
                                     <IonButton expand="block" color={'primary'} routerLink={`/account`} onClick={() => setShowPopover(false)}>Account <IonIcon icon={personCircleOutline} /></IonButton>
                                     <IonButton expand="block" color={'primary'} routerLink={`/reservations`} onClick={() => setShowPopover(false)}>My Reservation <IonIcon icon={ticketOutline} /></IonButton>
-                                    {isAdmin && (
+                                    {(role === UserRoles.Admin || role === UserRoles.Sales) && (
                                         <IonButton expand="block" color={'primary'} routerLink={`/admin`} onClick={() => setShowPopover(false)}>Admin Panel <IonIcon icon={buildOutline} /></IonButton>
                                     )}
                                     <IonButton expand="block" color={'danger'} onClick={() => { handleLogout(); setShowPopover(false); }}>Logout <IonIcon icon={exitOutline} /></IonButton>
@@ -107,7 +108,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                                 <IonPopover event={popoverEvent} isOpen={showPopover} onDidDismiss={() => setShowPopover(false)}>
                                     <IonButton expand="block" color={'primary'} routerLink={`/account`} onClick={() => setShowPopover(false)}>Account <IonIcon icon={personCircleOutline} /></IonButton>
                                     <IonButton expand="block" color={'primary'} routerLink={`/reservations`} onClick={() => setShowPopover(false)}>My Reservation <IonIcon icon={ticketOutline} /></IonButton>
-                                    {isAdmin && (
+                                    {(role === UserRoles.Admin || role === UserRoles.Sales) && (
                                         <IonButton expand="block" color={'primary'} routerLink={`/admin`} onClick={() => setShowPopover(false)}>Admin Panel <IonIcon icon={buildOutline} /></IonButton>
                                     )}
                                     <IonButton expand="block" color={'danger'} onClick={() => { handleLogout(); setShowPopover(false); }}>Logout <IonIcon icon={exitOutline} /></IonButton>
