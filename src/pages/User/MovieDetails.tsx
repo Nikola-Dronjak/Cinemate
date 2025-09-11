@@ -70,6 +70,12 @@ const MovieDetails: React.FC = () => {
     });
 
     useEffect(() => {
+        const query = queryString.parse(location.search);
+        if (query.token) {
+            confirmReservation(query.token as string);
+            return;
+        }
+
         if (location.pathname === `/home/details/${movieId}`) {
             const { page: queryPage } = queryString.parse(location.search);
             const parsedPage = Math.max(parseInt(queryPage as string) || 1, 1);
@@ -163,7 +169,9 @@ const MovieDetails: React.FC = () => {
             const { userId } = decodedToken;
             axios.post('/api/reservations/', {
                 userId: userId,
-                screeningId: screeningId
+                screeningId: screeningId,
+                currency: currency,
+                redirectUrl: window.location.href
             }, {
                 headers: {
                     'x-auth-token': token,
@@ -172,8 +180,43 @@ const MovieDetails: React.FC = () => {
             })
                 .then((response) => {
                     if (response.status === 201) {
+                        const { approvalUrl } = response.data;
+                        localStorage.setItem("pendingScreeningId", screeningId);
+                        window.location.href = approvalUrl;
+                    }
+                })
+                .catch((err) => {
+                    setToast({ message: err.response.data.message, color: 'danger' });
+                    console.error(err.response.data.message || err.message);
+                });
+        }
+    }
+
+    function confirmReservation(orderId: string) {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            const { userId } = decodedToken;
+            const screeningId = localStorage.getItem("pendingScreeningId");
+            if (!screeningId) {
+                setToast({ message: "No pending screening found.", color: "danger" });
+                return;
+            }
+
+            axios.post(`/api/reservations/${orderId}`, {
+                userId,
+                screeningId
+            }, {
+                headers: {
+                    "x-auth-token": token,
+                    "Content-Type": "application/json"
+                }
+            })
+                .then((response) => {
+                    if (response.status === 201) {
                         setToast({ message: "Reservation successfully added.", color: 'success' });
-                        fetchMovieDetails(page);
+                        localStorage.removeItem("pendingScreeningId");
+                        history.replace(`/home/details/${movieId}`);
                     }
                 })
                 .catch((err) => {
