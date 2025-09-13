@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonPage, IonRow, IonToast } from '@ionic/react';
 import { validateRegister } from './validateRegister';
 import Header from '../../components/Header';
@@ -29,6 +30,7 @@ const Register: React.FC = () => {
     }>({});
 
     const history = useHistory();
+    const { t } = useTranslation();
 
     async function handleSignUp(e: React.FormEvent) {
         e.preventDefault();
@@ -79,22 +81,22 @@ const Register: React.FC = () => {
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
                             <IonCard>
                                 <IonCardHeader>
-                                    <IonCardTitle>Create your account</IonCardTitle>
-                                    <IonCardSubtitle>Please enter your username, email address and password</IonCardSubtitle>
+                                    <IonCardTitle>{t('register.title')}</IonCardTitle>
+                                    <IonCardSubtitle>{t('register.subtitle')}</IonCardSubtitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={handleSignUp}>
-                                        <IonInput label='Username' type='text' placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} value={user.username} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
+                                        <IonInput label={t('inputs.labels.username')} type='text' placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} value={user.username} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
                                         {validationErrors.username && <span style={{ color: 'red' }}>{validationErrors.username}</span>}
-                                        <IonInput className='ion-margin-top' label='Email' type='text' placeholder='user@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} value={user.email} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.email')} type='text' placeholder='user@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} value={user.email} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
                                         {validationErrors.email && <span style={{ color: 'red' }}>{validationErrors.email}</span>}
-                                        <IonInput className='ion-margin-top' label='Password' type='password' placeholder='Your password' labelPlacement='floating' fill='outline' clearInput={true} value={user.password} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.password')} type='password' placeholder={t('inputs.placeholders.password')} labelPlacement='floating' fill='outline' clearInput={true} value={user.password} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
                                         {validationErrors.password && <span style={{ color: 'red' }}>{validationErrors.password}</span>}
                                         <IonRow className='ion-justify-content-center'>
-                                            <IonButton className='ion-margin-top ion-margin-bottom' type='submit' color={'primary'}>Create account</IonButton>
+                                            <IonButton className='ion-margin-top ion-margin-bottom' type='submit' color={'primary'}>{t('buttons.createAccount')}</IonButton>
                                         </IonRow>
                                     </form>
-                                    <p>Already have an account? <a href='/login'>Sign in!</a></p>
+                                    <p>{t('register.hasAccount')} <a href='/login'>{t('register.loginLink')}</a></p>
                                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                                         position: 'fixed',
                                         top: '10px',

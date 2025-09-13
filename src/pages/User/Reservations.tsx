@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonLabel, IonPage, IonRow, IonSegment, IonSegmentButton, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import queryString from 'query-string';
 import Header from '../../components/Header';
@@ -41,6 +42,7 @@ const Reservations: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         const { page: queryPage } = queryString.parse(location.search);
@@ -201,11 +203,11 @@ const Reservations: React.FC = () => {
             </IonHeader>
             {reservations.length === 0 ? (
                 <IonContent className='ion-padding'>
-                    <p className='ion-padding ion-text-center'>No reservations were found for this user.</p>
+                    <p className='ion-padding ion-text-center'>{t('reservation.noReservations')}</p>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',
@@ -236,12 +238,12 @@ const Reservations: React.FC = () => {
                                     <IonCard className='ion-padding'>
                                         <IonCardHeader>
                                             <IonCardTitle>{reservation.screening.movieTitle}</IonCardTitle>
-                                            <IonCardSubtitle>Cinema: {reservation.screening.cinemaName}</IonCardSubtitle>
-                                            <IonCardSubtitle>Hall: {reservation.screening.hallName}</IonCardSubtitle>
-                                            <IonCardSubtitle>Date: {reservation.screening.date}</IonCardSubtitle>
-                                            <IonCardSubtitle>Time: {reservation.screening.time}</IonCardSubtitle>
+                                            <IonCardSubtitle>{t('reservation.cinema')}: {reservation.screening.cinemaName}</IonCardSubtitle>
+                                            <IonCardSubtitle>{t('reservation.hall')}: {reservation.screening.hallName}</IonCardSubtitle>
+                                            <IonCardSubtitle>{t('reservation.date')}: {reservation.screening.date}</IonCardSubtitle>
+                                            <IonCardSubtitle>{t('reservation.time')}: {reservation.screening.time}</IonCardSubtitle>
                                             <IonCardSubtitle>
-                                                Price: {
+                                                {t('reservation.price')}: {
                                                     (() => {
                                                         const renderPrice = (basePrice: number, discountedPrice: number, suffix: string) => {
                                                             if (basePrice !== discountedPrice) {
@@ -270,7 +272,7 @@ const Reservations: React.FC = () => {
                                         </IonCardHeader>
                                         <IonRow className='ion-justify-content-center'>
                                             {isFutureScreening(reservation.screening.date) && (
-                                                <IonButton onClick={() => deleteReservation(reservation._id)} fill='solid' color={'danger'}>Cancel</IonButton>
+                                                <IonButton onClick={() => deleteReservation(reservation._id)} fill='solid' color={'danger'}>{t('buttons.cancel')}</IonButton>
                                             )}
                                         </IonRow>
                                     </IonCard>
@@ -279,9 +281,9 @@ const Reservations: React.FC = () => {
                         </IonRow>
                     </IonGrid>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',

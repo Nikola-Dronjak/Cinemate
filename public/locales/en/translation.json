@@ -1,0 +1,71 @@
+{
+    "login": {
+        "title": "Login",
+        "subtitle": "Please enter your user credentials",
+        "hasAccount": "Don't have an account?",
+        "registrationLink": "Register now!"
+    },
+    "register": {
+        "title": "Create your account",
+        "subtitle": "Please enter your username, email address and password",
+        "hasAccount": "Already have an account?",
+        "loginLink": "Sign in!"
+    },
+    "user": {
+        "title": "User information"
+    },
+    "movie": {
+        "director": "Director: {{director}}",
+        "genre": "Genre: {{genre}}",
+        "duration": "Duration: {{hours}}h {{minutes}}min",
+        "releaseDate": "Release date",
+        "imdbRating": "IMDb rating",
+        "noMovies": "There are no movies in the database right now."
+    },
+    "screening": {
+        "numberOfAvailableSeats": "Number of available seats",
+        "price": "Price",
+        "screeningsForMovie": "Screenings for {{movie}}",
+        "screeningsForHall": "Screenings for {{hall}}",
+        "noScreenings": "There are no screenings for this movie right now."
+    },
+    "reservation": {
+        "cinema": "Cinema",
+        "hall": "Hall",
+        "date": "Date",
+        "time": "Time",
+        "price": "Price",
+        "noReservations": "No reservations were found for this user."
+    },
+    "inputs": {
+        "labels": {
+            "username": "Username",
+            "email": "Email",
+            "password": "Password"
+        },
+        "placeholders": {
+            "password": "Your password",
+            "newPassword": "New password"
+        }
+    },
+    "buttons": {
+        "login": "Login",
+        "register": "Register",
+        "signin": "Sign in",
+        "createAccount": "Create account",
+        "account": "Account",
+        "myReservations": "My Reservations",
+        "logout": "Logout",
+        "view": "View",
+        "save": "Save",
+        "remove": "Remove",
+        "addReservation": "Add Reservation",
+        "cancel": "Cancel",
+        "uploadProfilePicture": "Upload Profile Picture"
+    },
+    "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "info": "Page {{page}} of {{totalPages}}"
+    }
+}

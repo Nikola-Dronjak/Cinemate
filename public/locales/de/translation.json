@@ -1,0 +1,71 @@
+{
+    "login": {
+        "title": "Anmelden",
+        "subtitle": "Bitte geben Sie Ihre Zugangsdaten ein",
+        "hasAccount": "Noch kein Konto?",
+        "registrationLink": "Jetzt registrieren!"
+    },
+    "register": {
+        "title": "Konto erstellen",
+        "subtitle": "Bitte geben Sie Ihren Benutzernamen, Ihre E-Mail-Adresse und Ihr Passwort ein",
+        "hasAccount": "Bereits ein Konto?",
+        "loginLink": "Jetzt anmelden!"
+    },
+    "user": {
+        "title": "Benutzerinformationen"
+    },
+    "movie": {
+        "director": "Regisseur: {{director}}",
+        "genre": "Genre: {{genre}}",
+        "duration": "Dauer: {{hours}}h {{minutes}}min",
+        "releaseDate": "Veröffentlichungsdatum",
+        "imdbRating": "IMDb-Bewertung",
+        "noMovies": "Es gibt derzeit keine Filme in der Datenbank."
+    },
+    "screening": {
+        "numberOfAvailableSeats": "Anzahl verfügbarer Plätze",
+        "price": "Preis",
+        "screeningsForMovie": "Vorführungen für {{movie}}",
+        "screeningsForHall": "Vorführungen für {{hall}}",
+        "noScreenings": "Für diesen Film gibt es momentan keine Vorführungen."
+    },
+    "reservation": {
+        "cinema": "Kino",
+        "hall": "Saal",
+        "date": "Datum",
+        "time": "Uhrzeit",
+        "price": "Preis",
+        "noReservations": "Für diesen Benutzer wurden keine Reservierungen gefunden."
+    },
+    "inputs": {
+        "labels": {
+            "username": "Benutzername",
+            "email": "E-Mail",
+            "password": "Passwort"
+        },
+        "placeholders": {
+            "password": "Ihr Passwort",
+            "newPassword": "Neues Passwort"
+        }
+    },
+    "buttons": {
+        "login": "Anmelden",
+        "register": "Registrieren",
+        "signin": "Einloggen",
+        "createAccount": "Konto erstellen",
+        "account": "Konto",
+        "myReservations": "Meine Reservierungen",
+        "logout": "Abmelden",
+        "view": "Ansehen",
+        "save": "Speichern",
+        "remove": "Entfernen",
+        "addReservation": "Reservierung hinzufügen",
+        "cancel": "Abbrechen",
+        "uploadProfilePicture": "Profilbild hochladen"
+    },
+    "pagination": {
+        "previous": "Zurück",
+        "next": "Weiter",
+        "info": "Seite {{page}} von {{totalPages}}"
+    }
+}

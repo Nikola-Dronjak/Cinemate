@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonImg, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
 import queryString from 'query-string';
 import Header from '../../components/Header';
@@ -28,6 +29,7 @@ const Home: React.FC = () => {
 
 	const location = useLocation();
 	const history = useHistory();
+	const { t } = useTranslation();
 
 	useIonViewWillEnter(() => {
 		const { page: queryPage } = queryString.parse(location.search);
@@ -96,11 +98,11 @@ const Home: React.FC = () => {
 			</IonHeader>
 			{movies.length === 0 ? (
 				<IonContent className='ion-padding'>
-					<p className='ion-padding ion-text-center'>There are no movies in the database right now.</p>
+					<p className='ion-padding ion-text-center'>{t('movie.noMovies')}</p>
 					<div className="ion-text-center">
-						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+						<span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
 					</div>
 					<IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
 						position: 'fixed',
@@ -121,13 +123,13 @@ const Home: React.FC = () => {
 										<IonImg src={`${import.meta.env.VITE_SERVER_ADDRESS}/images/${movie.image}`} alt={movie.title} />
 										<IonCardHeader>
 											<IonCardTitle>{movie.title}</IonCardTitle>
-											<IonCardSubtitle>Director: {movie.director}</IonCardSubtitle>
-											<IonCardSubtitle>Genre: {movie.genre}</IonCardSubtitle>
-											<IonCardSubtitle>Duration: {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
+											<IonCardSubtitle>{t('movie.director', { director: movie.director })}</IonCardSubtitle>
+											<IonCardSubtitle>{t('movie.genre', { genre: movie.genre })}</IonCardSubtitle>
+											<IonCardSubtitle>{t('movie.duration', { hours: Math.floor(movie.duration / 60), minutes: movie.duration % 60 })}</IonCardSubtitle>
 										</IonCardHeader>
 										<IonCardContent>
 											<IonRow className='ion-justify-content-center'>
-												<IonButton routerLink={`/home/details/${movie._id}`} fill='solid' color={'primary'}>View</IonButton>
+												<IonButton routerLink={`/home/details/${movie._id}`} fill='solid' color={'primary'}>{t('buttons.view')}</IonButton>
 											</IonRow>
 										</IonCardContent>
 									</IonCard>
@@ -136,9 +138,9 @@ const Home: React.FC = () => {
 						</IonRow>
 					</IonGrid>
 					<div className="ion-text-center">
-						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-						<span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+						<IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+						<span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+						<IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
 					</div>
 					<IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
 						position: 'fixed',

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonImg, IonLabel, IonPage, IonRow, IonSegment, IonSegmentButton, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { calendarOutline, cashOutline, star, ticketOutline } from 'ionicons/icons';
 import queryString from 'query-string';
@@ -61,6 +62,7 @@ const MovieDetails: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         const { page: queryPage } = queryString.parse(location.search);
@@ -248,8 +250,8 @@ const MovieDetails: React.FC = () => {
                                                         <h1>{movie.title}</h1>
                                                         <h2>{movie.director}</h2>
                                                         <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
-                                                        <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
-                                                        <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
+                                                        <IonCardSubtitle>{t('movie.releaseDate')}: {movie.releaseDate}</IonCardSubtitle>
+                                                        <IonCardSubtitle>{t('movie.imdbRating')}: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
                                                     </IonCardHeader>
                                                     <IonCardContent>{movie.description}</IonCardContent>
                                                 </IonCol>
@@ -262,15 +264,15 @@ const MovieDetails: React.FC = () => {
                     </IonGrid >
                     <IonCard>
                         <IonCardHeader>
-                            <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
+                            <IonCardTitle>{t('screening.screeningsForMovie', { movie: movie.title })}</IonCardTitle>
                         </IonCardHeader>
                         <IonCardContent className='ion-padding'>
-                            <p className='ion-padding ion-text-center'>There are no screenings for this movie right now.</p>
+                            <p className='ion-padding ion-text-center'>{t('screening.noScreenings')}</p>
                         </IonCardContent>
                         <div className="ion-text-center">
-                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                            <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                         </div>
                     </IonCard>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
@@ -299,8 +301,8 @@ const MovieDetails: React.FC = () => {
                                                         <h1>{movie.title}</h1>
                                                         <h2>{movie.director}</h2>
                                                         <IonCardSubtitle>{movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
-                                                        <IonCardSubtitle>Release date: {movie.releaseDate}</IonCardSubtitle>
-                                                        <IonCardSubtitle>IMDb rating: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
+                                                        <IonCardSubtitle>{t('movie.releaseDate')}: {movie.releaseDate}</IonCardSubtitle>
+                                                        <IonCardSubtitle>{t('movie.imdbRating')}: {movie.rating} <IonIcon icon={star} /></IonCardSubtitle>
                                                     </IonCardHeader>
                                                     <IonCardContent>{movie.description}</IonCardContent>
                                                 </IonCol>
@@ -313,7 +315,7 @@ const MovieDetails: React.FC = () => {
                     </IonGrid >
                     <IonCard>
                         <IonCardHeader>
-                            <IonCardTitle>Screenings for {movie.title}</IonCardTitle>
+                            <IonCardTitle>{t('screening.screeningsForMovie', { movie: movie.title })}</IonCardTitle>
                         </IonCardHeader>
                         <IonSegment value={currency} onIonChange={(e) => setCurrency(e.detail.value as any)}>
                             <IonSegmentButton value="EUR">
@@ -332,8 +334,8 @@ const MovieDetails: React.FC = () => {
                                     <IonCardHeader>
                                         <IonCardTitle>{screening.cinemaName}, {screening.hallName}</IonCardTitle>
                                         <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
-                                        <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
-                                        <IonCardSubtitle><IonIcon icon={cashOutline} /> Price: {
+                                        <IonCardSubtitle><IonIcon icon={ticketOutline} /> {t('screening.numberOfAvailableSeats')}: {screening.numberOfAvailableSeats}</IonCardSubtitle>
+                                        <IonCardSubtitle><IonIcon icon={cashOutline} /> {t('screening.price')}: {
                                             (() => {
                                                 const renderPrice = (basePrice: number, discountedPrice: number, suffix: string) => {
                                                     if (basePrice !== discountedPrice) {
@@ -361,15 +363,15 @@ const MovieDetails: React.FC = () => {
                                         </IonCardSubtitle>
                                     </IonCardHeader>
                                     {isLoggedIn() && (
-                                        <IonButton onClick={() => makeReservation(screening._id)} fill='solid' color={'primary'}>Add Reservation</IonButton>
+                                        <IonButton onClick={() => makeReservation(screening._id)} fill='solid' color={'primary'}>{t('buttons.addReservation')}</IonButton>
                                     )}
                                 </IonCard>
                             ))}
                         </IonCardContent>
                         <div className="ion-text-center">
-                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                            <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                         </div>
                     </IonCard>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
