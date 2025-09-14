@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { saveOutline } from 'ionicons/icons';
 import { validateHall } from './validateHall';
@@ -39,6 +40,8 @@ const AddHall: React.FC = () => {
         name?: string;
         numberOfSeats?: string;
     }>({});
+
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         fetchCinema();
@@ -104,18 +107,18 @@ const AddHall: React.FC = () => {
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
                             <IonCard>
                                 <IonCardHeader>
-                                    <IonCardTitle>Add a new Hall</IonCardTitle>
-                                    <IonCardSubtitle>Please enter the hall information</IonCardSubtitle>
+                                    <IonCardTitle>{t('hall.addHall.title')}</IonCardTitle>
+                                    <IonCardSubtitle>{t('hall.addHall.subtitle')}</IonCardSubtitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={addHall}>
-                                        <IonInput label='Name' type='text' placeholder='Name of the Hall' labelPlacement='floating' fill='outline' clearInput={true} value={hall.name} onIonInput={(e) => setHall({ ...hall, name: e.detail.value?.trim() || '' })} />
+                                        <IonInput label={t('inputs.labels.hall.name')} type='text' placeholder={t('inputs.placeholders.hall.name')} labelPlacement='floating' fill='outline' clearInput={true} value={hall.name} onIonInput={(e) => setHall({ ...hall, name: e.detail.value?.trim() || '' })} />
                                         {validationErrors.name && <span style={{ color: 'red' }}>{validationErrors.name}</span>}
-                                        <IonInput className='ion-margin-top' label='Number of Seats' type='number' placeholder='Number of Seats in the Hall' labelPlacement='floating' fill='outline' clearInput={true} value={hall.numberOfSeats} onIonInput={(e) => setHall({ ...hall, numberOfSeats: parseInt(e.detail.value!, 10) || 0 })} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.hall.numberOfSeats')} type='number' placeholder={t('inputs.placeholders.hall.numberOfSeats')} labelPlacement='floating' fill='outline' clearInput={true} value={hall.numberOfSeats} onIonInput={(e) => setHall({ ...hall, numberOfSeats: parseInt(e.detail.value!, 10) || 0 })} />
                                         {validationErrors.numberOfSeats && <span style={{ color: 'red' }}>{validationErrors.numberOfSeats}</span>}
-                                        <IonInput className='ion-margin-top' label='Cinema' type='text' labelPlacement='floating' fill='outline' disabled={true} value={cinema.name} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.hall.cinema')} type='text' labelPlacement='floating' fill='outline' disabled={true} value={cinema.name} />
                                         <IonRow className='ion-justify-content-center'>
-                                            <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
+                                            <IonButton className='ion-margin-top' type='submit' color='primary'>{t('buttons.save')} <IonIcon icon={saveOutline} /></IonButton>
                                         </IonRow>
                                     </form>
                                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{

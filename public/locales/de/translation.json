@@ -12,7 +12,32 @@
         "loginLink": "Jetzt anmelden!"
     },
     "user": {
-        "title": "Benutzerinformationen"
+        "role": "Rolle",
+        "title": "Benutzerinformationen",
+        "noUsers": "Es gibt derzeit keine Benutzer in der Datenbank."
+    },
+    "cinema": {
+        "noCinemas": "Derzeit sind keine Kinos in der Datenbank vorhanden.",
+        "addCinema": {
+            "title": "Neues Kino hinzufügen",
+            "subtitle": "Bitte geben Sie die Kinoinformationen ein"
+        },
+        "updateCinema": {
+            "title": "Kino aktualisieren",
+            "subtitle": "Bitte aktualisieren Sie die Kinoinformationen"
+        }
+    },
+    "hall": {
+        "capacity": "Kapazität: {{numberOfSeats}} Plätze",
+        "noHalls": "Dieses Kino hat derzeit keine Säle.",
+        "addHall": {
+            "title": "Neuen Saal hinzufügen",
+            "subtitle": "Bitte geben Sie die Saalinformationen ein"
+        },
+        "updateHall": {
+            "title": "Saal aktualisieren",
+            "subtitle": "Bitte aktualisieren Sie die Saalinformationen"
+        }
     },
     "movie": {
         "director": "Regisseur: {{director}}",
@@ -20,14 +45,48 @@
         "duration": "Dauer: {{hours}}h {{minutes}}min",
         "releaseDate": "Veröffentlichungsdatum",
         "imdbRating": "IMDb-Bewertung",
-        "noMovies": "Es gibt derzeit keine Filme in der Datenbank."
+        "noMovies": "Es gibt derzeit keine Filme in der Datenbank.",
+        "addMovie": {
+            "title": "Neuen Film hinzufügen",
+            "subtitle": "Bitte geben Sie die Filminformationen ein"
+        },
+        "updateMovie": {
+            "title": "Film aktualisieren",
+            "subtitle": "Bitte aktualisieren Sie die Filminformationen"
+        }
+    },
+    "genre": {
+        "action": "Action",
+        "animation": "Animation",
+        "comedy": "Komödie",
+        "crime": "Krimi",
+        "drama": "Drama",
+        "thriller": "Thriller",
+        "horror": "Horror",
+        "romance": "Romanze",
+        "western": "Western"
     },
     "screening": {
         "numberOfAvailableSeats": "Anzahl verfügbarer Plätze",
         "price": "Preis",
+        "seats": "Sitze",
         "screeningsForMovie": "Vorführungen für {{movie}}",
         "screeningsForHall": "Vorführungen für {{hall}}",
-        "noScreenings": "Für diesen Film gibt es momentan keine Vorführungen."
+        "noScreeningsForMovie": "Für diesen Film gibt es momentan keine Vorführungen.",
+        "noScreeningsForHall": "In diesem Saal gibt es derzeit keine Vorstellungen.",
+        "addScreening": {
+            "title": "Neue Vorstellung hinzufügen",
+            "subtitle": "Bitte geben Sie die Informationen zur Vorstellung ein"
+        },
+        "updateScreening": {
+            "title": "Vorstellung aktualisieren",
+            "subtitle": "Bitte aktualisieren Sie die Informationen zur Vorstellung"
+        }
+    },
+    "discount": {
+        "header": "Rabatt hinzufügen",
+        "placeholder": "Der Rabattbetrag (0-100%)",
+        "error": "Bitte geben Sie einen Rabatt zwischen 0 und 100 ein."
     },
     "reservation": {
         "cinema": "Kino",
@@ -39,13 +98,68 @@
     },
     "inputs": {
         "labels": {
-            "username": "Benutzername",
-            "email": "E-Mail",
-            "password": "Passwort"
+            "user": {
+                "username": "Benutzername",
+                "email": "E-Mail",
+                "password": "Passwort"
+            },
+            "cinema": {
+                "name": "Name",
+                "address": "Adresse",
+                "city": "Stadt"
+            },
+            "hall": {
+                "name": "Name",
+                "numberOfSeats": "Anzahl der Plätze",
+                "cinema": "Kino"
+            },
+            "movie": {
+                "title": "Titel",
+                "director": "Regisseur",
+                "genre": "Genre",
+                "description": "Beschreibung",
+                "releaseDate": "Erscheinungsdatum",
+                "duration": "Dauer",
+                "rating": "Bewertung",
+                "image": "Bild"
+            },
+            "screening": {
+                "movie": "Film",
+                "cinema": "Kino",
+                "hall": "Saal",
+                "price": "Preis"
+            }
         },
         "placeholders": {
-            "password": "Ihr Passwort",
-            "newPassword": "Neues Passwort"
+            "user": {
+                "password": "Ihr Passwort",
+                "newPassword": "Neues Passwort"
+            },
+            "cinema": {
+                "name": "Name des Kinos",
+                "address": "Straßenadresse des Kinos",
+                "city": "Stadt, in der sich das Kino befindet"
+            },
+            "hall": {
+                "name": "Name des Saals",
+                "numberOfSeats": "Anzahl der Plätze im Saal"
+            },
+            "movie": {
+                "title": "Der Titel des Films",
+                "director": "Der Regisseur des Films",
+                "genre": "Das Genre des Films",
+                "description": "Die Beschreibung des Films",
+                "releaseDate": "Das Erscheinungsdatum des Films",
+                "duration": "Die Dauer des Films in Minuten",
+                "rating": "Die Bewertung des Films (1,0 - 10,0)",
+                "imageUrl": "Bild-URL"
+            },
+            "screening": {
+                "movie": "Wählen Sie einen Film",
+                "cinema": "Wählen Sie ein Kino",
+                "hall": "Wählen Sie einen Saal",
+                "price": "Der Ticketpreis für die Filmvorstellung in Euro"
+            }
         }
     },
     "buttons": {
@@ -55,11 +169,15 @@
         "createAccount": "Konto erstellen",
         "account": "Konto",
         "myReservations": "Meine Reservierungen",
+        "adminPanel": "Admin-Bereich",
         "logout": "Abmelden",
         "view": "Ansehen",
+        "add": "Hinzufügen",
+        "edit": "Bearbeiten",
         "save": "Speichern",
         "remove": "Entfernen",
         "addReservation": "Reservierung hinzufügen",
+        "addDiscount": "Rabatt hinzufügen",
         "cancel": "Abbrechen",
         "uploadProfilePicture": "Profilbild hochladen"
     },

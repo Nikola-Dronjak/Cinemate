@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonAlert, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonLabel, IonPage, IonSegment, IonSegmentButton, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, bulbOutline, calendarOutline, cashOutline, createOutline, ticketOutline, trashOutline } from 'ionicons/icons';
 import queryString from 'query-string';
@@ -55,6 +56,7 @@ const Hall: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         const { page: queryPage } = queryString.parse(location.search);
@@ -213,18 +215,18 @@ const Hall: React.FC = () => {
                 <IonContent className='ion-padding'>
                     <IonCard className='ion-padding'>
                         <IonToolbar>
-                            <IonCardTitle>Screenings for {hall.name}</IonCardTitle>
+                            <IonCardTitle>{t('screening.screeningsForHall', { hall: hall.name })}</IonCardTitle>
                             <IonButtons slot="end">
-                                <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                                <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>
-                            <p className='ion-padding ion-text-center'>There are no screenings in this hall right now.</p>
+                            <p className='ion-padding ion-text-center'>{t('screening.noScreeningsForHall')}</p>
                         </IonCardContent>
                         <div className="ion-text-center">
-                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                            <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                         </div>
                     </IonCard>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
@@ -240,9 +242,9 @@ const Hall: React.FC = () => {
                 <IonContent className='ion-padding'>
                     <IonCard className='ion-padding'>
                         <IonToolbar>
-                            <IonCardTitle>Screenings for {hall.name}</IonCardTitle>
+                            <IonCardTitle>{t('screening.screeningsForHall', { hall: hall.name })}</IonCardTitle>
                             <IonButtons slot="end">
-                                <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                                <IonButton routerLink={`/admin/screenings/add/hall/${hallId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
                             </IonButtons>
                         </IonToolbar>
                         <IonSegment value={currency} onIonChange={(e) => setCurrency(e.detail.value as any)}>
@@ -256,11 +258,8 @@ const Hall: React.FC = () => {
                                 <IonLabel>CHF (Fr)</IonLabel>
                             </IonSegmentButton>
                         </IonSegment>
-                        <IonAlert key={alertKey} isOpen={showDiscountModal} onDidDismiss={() => {
-                            setShowDiscountModal(false);
-                            setAlertError('');
-                        }}
-                            header="Add Discount"
+                        <IonAlert key={alertKey} isOpen={showDiscountModal} onDidDismiss={() => { setShowDiscountModal(false); setAlertError(''); }}
+                            header={t('discount.header')}
                             message={alertError}
                             inputs={[
                                 {
@@ -268,22 +267,22 @@ const Hall: React.FC = () => {
                                     type: 'number',
                                     min: 0,
                                     max: 100,
-                                    placeholder: 'The discount amount (0-100%)'
+                                    placeholder: t('discount.placeholder')
                                 }
                             ]}
                             buttons={[
                                 {
-                                    text: 'Cancel',
+                                    text: t('buttons.cancel'),
                                     role: 'cancel',
                                     handler: () => setAlertError('')
                                 },
                                 {
-                                    text: 'Save',
+                                    text: t('buttons.save'),
                                     handler: async (data) => {
                                         const value = parseFloat(data.discount);
 
                                         if (isNaN(value) || value < 0 || value > 100) {
-                                            setAlertError('Please enter a discount between 0 and 100.');
+                                            setAlertError(t('discount.error'));
                                             return false;
                                         }
 
@@ -302,8 +301,8 @@ const Hall: React.FC = () => {
                                     <IonCardHeader>
                                         <IonCardTitle>{screening.movieTitle}</IonCardTitle>
                                         <IonCardSubtitle><IonIcon icon={calendarOutline} /> {screening.time} - {screening.endTime}, {screening.date}</IonCardSubtitle>
-                                        <IonCardSubtitle><IonIcon icon={ticketOutline} /> Number of available seats: {screening.numberOfAvailableSeats}</IonCardSubtitle>
-                                        <IonCardSubtitle><IonIcon icon={cashOutline} /> Price: {
+                                        <IonCardSubtitle><IonIcon icon={ticketOutline} /> {t('screening.numberOfAvailableSeats')}: {screening.numberOfAvailableSeats}</IonCardSubtitle>
+                                        <IonCardSubtitle><IonIcon icon={cashOutline} /> {t('screening.price')}: {
                                             (() => {
                                                 const renderPrice = (basePrice: number, discountedPrice: number, suffix: string) => {
                                                     if (basePrice !== discountedPrice) {
@@ -332,18 +331,18 @@ const Hall: React.FC = () => {
                                     </IonCardHeader>
                                     {isFutureScreening(screening.date) && (
                                         <>
-                                            <IonButton onClick={() => { setSelectedScreeningId(screening._id); setShowDiscountModal(true); }} fill='solid' color={'success'}>Add Discount <IonIcon icon={bulbOutline} /></IonButton>
-                                            <IonButton routerLink={`/admin/screenings/update/${screening._id}/hall/${hallId}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                                            <IonButton onClick={() => deleteScreening(screening._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                                            <IonButton onClick={() => { setSelectedScreeningId(screening._id); setShowDiscountModal(true); }} fill='solid' color={'success'}>{t('buttons.addDiscount')} <IonIcon icon={bulbOutline} /></IonButton>
+                                            <IonButton routerLink={`/admin/screenings/update/${screening._id}/hall/${hallId}`} fill='solid' color={'secondary'}>{t('buttons.edit')} <IonIcon icon={createOutline} /></IonButton>
+                                            <IonButton onClick={() => deleteScreening(screening._id)} fill='solid' color={'danger'}>{t('buttons.remove')} <IonIcon icon={trashOutline} /></IonButton>
                                         </>
                                     )}
                                 </IonCard>
                             ))}
                         </IonCardContent>
                         <div className="ion-text-center">
-                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                            <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                            <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                            <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                            <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                         </div>
                     </IonCard>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{

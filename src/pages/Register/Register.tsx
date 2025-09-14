@@ -86,11 +86,11 @@ const Register: React.FC = () => {
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={handleSignUp}>
-                                        <IonInput label={t('inputs.labels.username')} type='text' placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} value={user.username} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
+                                        <IonInput label={t('inputs.labels.user.username')} type='text' placeholder='user123' labelPlacement='floating' fill='outline' clearInput={true} value={user.username} onIonInput={(e) => setUser({ ...user, username: e.detail.value?.trim() || '' })} />
                                         {validationErrors.username && <span style={{ color: 'red' }}>{validationErrors.username}</span>}
-                                        <IonInput className='ion-margin-top' label={t('inputs.labels.email')} type='text' placeholder='user@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} value={user.email} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.user.email')} type='text' placeholder='user@gmail.com' labelPlacement='floating' fill='outline' clearInput={true} value={user.email} onIonInput={(e) => setUser({ ...user, email: e.detail.value?.trim() || '' })} />
                                         {validationErrors.email && <span style={{ color: 'red' }}>{validationErrors.email}</span>}
-                                        <IonInput className='ion-margin-top' label={t('inputs.labels.password')} type='password' placeholder={t('inputs.placeholders.password')} labelPlacement='floating' fill='outline' clearInput={true} value={user.password} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.user.password')} type='password' placeholder={t('inputs.placeholders.user.password')} labelPlacement='floating' fill='outline' clearInput={true} value={user.password} onIonInput={(e) => setUser({ ...user, password: e.detail.value?.trim() || '' })} />
                                         {validationErrors.password && <span style={{ color: 'red' }}>{validationErrors.password}</span>}
                                         <IonRow className='ion-justify-content-center'>
                                             <IonButton className='ion-margin-top ion-margin-bottom' type='submit' color={'primary'}>{t('buttons.createAccount')}</IonButton>

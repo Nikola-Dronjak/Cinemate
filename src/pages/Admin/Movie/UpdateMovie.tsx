@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonTextarea, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { saveOutline } from 'ionicons/icons';
 import { validateMovie } from './validateMovie';
@@ -44,6 +45,8 @@ const UpdateMovie: React.FC = () => {
         image?: string;
         rating?: string;
     }>({});
+
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         fetchMovieDetails();
@@ -129,41 +132,41 @@ const UpdateMovie: React.FC = () => {
                         <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
                             <IonCard>
                                 <IonCardHeader>
-                                    <IonCardTitle>Update Movie: {movie.title}</IonCardTitle>
-                                    <IonCardSubtitle>Please update the movie information</IonCardSubtitle>
+                                    <IonCardTitle>{t('movie.updateMovie.title')}: {movie.title}</IonCardTitle>
+                                    <IonCardSubtitle>{t('movie.updateMovie.subtitle')}</IonCardSubtitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={updateMovie}>
                                         <IonGrid>
                                             <IonRow>
                                                 <IonCol size='6'>
-                                                    <IonInput label='Title' type='text' placeholder='The title of the Movie' labelPlacement='floating' fill='outline' clearInput={true} value={movie.title} onIonInput={(e) => setMovie({ ...movie, title: e.detail.value?.trim() || '' })} />
+                                                    <IonInput label={t('inputs.labels.movie.title')} type='text' placeholder={t('inputs.placeholders.movie.title')} labelPlacement='floating' fill='outline' clearInput={true} value={movie.title} onIonInput={(e) => setMovie({ ...movie, title: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.title && <span style={{ color: 'red' }}>{validationErrors.title}</span>}
-                                                    <IonInput className='ion-margin-top' label='Director' type='text' placeholder='The director of the Movie' labelPlacement='floating' fill='outline' clearInput={true} value={movie.director} onIonInput={(e) => setMovie({ ...movie, director: e.detail.value?.trim() || '' })} />
+                                                    <IonInput className='ion-margin-top' label={t('inputs.labels.movie.director')} type='text' placeholder={t('inputs.placeholders.movie.director')} labelPlacement='floating' fill='outline' clearInput={true} value={movie.director} onIonInput={(e) => setMovie({ ...movie, director: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.director && <span style={{ color: 'red' }}>{validationErrors.director}</span>}
-                                                    <IonSelect className='ion-margin-top' label='Genre' placeholder='The genre of the Movie' labelPlacement='floating' fill='outline' value={movie.genre} onIonChange={(e) => setMovie({ ...movie, genre: e.detail.value?.trim() || '' })}>
-                                                        <IonSelectOption value={'Action'}>Action</IonSelectOption>
-                                                        <IonSelectOption value={'Animation'}>Animation</IonSelectOption>
-                                                        <IonSelectOption value={'Comedy'}>Comedy</IonSelectOption>
-                                                        <IonSelectOption value={'Crime'}>Crime</IonSelectOption>
-                                                        <IonSelectOption value={'Drama'}>Drama</IonSelectOption>
-                                                        <IonSelectOption value={'Thriller'}>Thriller</IonSelectOption>
-                                                        <IonSelectOption value={'Horror'}>Horror</IonSelectOption>
-                                                        <IonSelectOption value={'Romance'}>Romance</IonSelectOption>
-                                                        <IonSelectOption value={'Western'}>Western</IonSelectOption>
+                                                    <IonSelect className='ion-margin-top' label={t('inputs.labels.movie.genre')} placeholder={t('inputs.placeholders.movie.genre')} labelPlacement='floating' fill='outline' value={movie.genre} onIonChange={(e) => setMovie({ ...movie, genre: e.detail.value?.trim() || '' })}>
+                                                        <IonSelectOption value={'Action'}>{t('genre.action')}</IonSelectOption>
+                                                        <IonSelectOption value={'Animation'}>{t('genre.animation')}</IonSelectOption>
+                                                        <IonSelectOption value={'Comedy'}>{t('genre.comedy')}</IonSelectOption>
+                                                        <IonSelectOption value={'Crime'}>{t('genre.crime')}</IonSelectOption>
+                                                        <IonSelectOption value={'Drama'}>{t('genre.drama')}</IonSelectOption>
+                                                        <IonSelectOption value={'Horror'}>{t('genre.horror')}</IonSelectOption>
+                                                        <IonSelectOption value={'Romance'}>{t('genre.romance')}</IonSelectOption>
+                                                        <IonSelectOption value={'Thriller'}>{t('genre.thriller')}</IonSelectOption>
+                                                        <IonSelectOption value={'Western'}>{t('genre.western')}</IonSelectOption>
                                                     </IonSelect>
                                                     {validationErrors.genre && <span style={{ color: 'red' }}>{validationErrors.genre}</span>}
-                                                    <IonTextarea className='ion-margin-top' label='Description' placeholder='The description of the Movie' labelPlacement='floating' fill='outline' rows={6} value={movie.description} onIonInput={(e) => setMovie({ ...movie, description: e.detail.value?.trim() || '' })} />
+                                                    <IonTextarea className='ion-margin-top' label={t('inputs.labels.movie.description')} placeholder={t('inputs.placeholders.movie.description')} labelPlacement='floating' fill='outline' rows={6} value={movie.description} onIonInput={(e) => setMovie({ ...movie, description: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.description && <span style={{ color: 'red' }}>{validationErrors.description}</span>}
                                                 </IonCol>
                                                 <IonCol size='6'>
-                                                    <IonInput label='Release Date' type='date' placeholder='The release date of the Movie' labelPlacement='floating' fill='outline' clearInput={true} value={movie.releaseDate} onIonInput={(e) => setMovie({ ...movie, releaseDate: e.detail.value?.trim() || '' })} />
+                                                    <IonInput label={t('inputs.labels.movie.releaseDate')} type='date' placeholder={t('inputs.placeholders.movie.releaseDate')} labelPlacement='floating' fill='outline' clearInput={true} value={movie.releaseDate} onIonInput={(e) => setMovie({ ...movie, releaseDate: e.detail.value?.trim() || '' })} />
                                                     {validationErrors.releaseDate && <span style={{ color: 'red' }}>{validationErrors.releaseDate}</span>}
-                                                    <IonInput className='ion-margin-top' label='Duration' type='number' placeholder='The duration of the Movie in minutes' labelPlacement='floating' fill='outline' value={movie.duration} onIonInput={(e) => setMovie({ ...movie, duration: parseInt(e.detail.value!, 10) || 0 })} />
+                                                    <IonInput className='ion-margin-top' label={t('inputs.labels.movie.duration')} type='number' placeholder={t('inputs.placeholders.movie.duration')} labelPlacement='floating' fill='outline' value={movie.duration} onIonInput={(e) => setMovie({ ...movie, duration: parseInt(e.detail.value!, 10) || 0 })} />
                                                     {validationErrors.duration && <span style={{ color: 'red' }}>{validationErrors.duration}</span>}
-                                                    <IonInput className='ion-margin-top' label='Rating' type='number' placeholder='The rating of the Movie (1.0 - 10.0)' labelPlacement='floating' fill='outline' step='0.1' value={movie.rating} onIonInput={(e) => setMovie({ ...movie, rating: parseFloat(e.detail.value!) })} />
+                                                    <IonInput className='ion-margin-top' label={t('inputs.labels.movie.rating')} type='number' placeholder={t('inputs.placeholders.movie.rating')} labelPlacement='floating' fill='outline' step='0.1' value={movie.rating} onIonInput={(e) => setMovie({ ...movie, rating: parseFloat(e.detail.value!) })} />
                                                     {validationErrors.rating && <span style={{ color: 'red' }}>{validationErrors.rating}</span>}
-                                                    <IonInput className='ion-margin-top' label='Image' type='text' placeholder='Image URL' labelPlacement='floating' fill='outline' clearInput={true} value={movie.image} onIonInput={(e) => setMovie({ ...movie, image: e.detail.value?.trim() || '' })} />
+                                                    <IonInput className='ion-margin-top' label={t('inputs.labels.movie.image')} type='text' placeholder={t('inputs.placeholders.movie.imageUrl')} labelPlacement='floating' fill='outline' clearInput={true} value={movie.image} onIonInput={(e) => setMovie({ ...movie, image: e.detail.value?.trim() || '' })} />
                                                     <input type="file"
                                                         onChange={(e) => {
                                                             if (e.target.files && e.target.files[0]) {
@@ -175,7 +178,7 @@ const UpdateMovie: React.FC = () => {
                                                 </IonCol>
                                             </IonRow>
                                             <IonRow className='ion-justify-content-center'>
-                                                <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
+                                                <IonButton className='ion-margin-top' type='submit' color='primary'>{t('buttons.save')} <IonIcon icon={saveOutline} /></IonButton>
                                             </IonRow>
                                         </IonGrid>
                                     </form>

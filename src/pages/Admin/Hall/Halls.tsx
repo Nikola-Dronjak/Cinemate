@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'ionicons/icons';
 import queryString from 'query-string';
@@ -39,6 +40,7 @@ const Halls: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         const { page: queryPage } = queryString.parse(location.search);
@@ -159,17 +161,17 @@ const Halls: React.FC = () => {
                         <IonToolbar>
                             <IonCardTitle>{cinema.name}</IonCardTitle>
                             <IonButtons slot="end">
-                                <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                                <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>
-                            <p className='ion-padding ion-text-center'>This cinema doesnt have any halls right now.</p>
+                            <p className='ion-padding ion-text-center'>{t('hall.noHalls')}</p>
                         </IonCardContent>
                     </IonCard>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',
@@ -188,7 +190,7 @@ const Halls: React.FC = () => {
                         <IonToolbar>
                             <IonCardTitle>{cinema.name}</IonCardTitle>
                             <IonButtons slot="end">
-                                <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>Add <IonIcon icon={addCircleOutline} /></IonButton>
+                                <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>
@@ -196,14 +198,14 @@ const Halls: React.FC = () => {
                                 <IonCard className='ion-padding' key={hall._id} color={'light'}>
                                     <IonCardHeader>
                                         <IonCardTitle>{hall.name}</IonCardTitle>
-                                        <IonCardSubtitle>Capacity: {hall.numberOfSeats} seats</IonCardSubtitle>
+                                        <IonCardSubtitle>{t('hall.capacity', { numberOfSeats: hall.numberOfSeats })}</IonCardSubtitle>
                                     </IonCardHeader>
 
-                                    <IonButton routerLink={`/admin/halls/${hall._id}`} fill='solid' color={'primary'}>View <IonIcon icon={searchOutline} /></IonButton>
+                                    <IonButton routerLink={`/admin/halls/${hall._id}`} fill='solid' color={'primary'}>{t('buttons.view')} <IonIcon icon={searchOutline} /></IonButton>
                                     {role === 'Admin' && (
                                         <>
-                                            <IonButton routerLink={`/admin/halls/update/${hall._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                                            <IonButton onClick={() => deleteHall(hall._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                                            <IonButton routerLink={`/admin/halls/update/${hall._id}`} fill='solid' color={'secondary'}>{t('buttons.edit')} <IonIcon icon={createOutline} /></IonButton>
+                                            <IonButton onClick={() => deleteHall(hall._id)} fill='solid' color={'danger'}>{t('buttons.remove')} <IonIcon icon={trashOutline} /></IonButton>
                                         </>
                                     )}
                                 </IonCard>
@@ -211,9 +213,9 @@ const Halls: React.FC = () => {
                         </IonCardContent>
                     </IonCard>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',

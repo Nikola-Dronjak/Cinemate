@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useTranslation } from "react-i18next";
-import { IonButton, IonButtons, IonIcon, IonItem, IonLabel, IonPopover, IonTitle, IonToggle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonButtons, IonIcon, IonItem, IonPopover, IonTitle, IonToggle, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { buildOutline, exitOutline, personCircleOutline, ticketOutline } from 'ionicons/icons';
 import i18n from '../i18n';
 import axios from '../api/AxiosInstance';
@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                                     <IonButton expand="block" color={'primary'} routerLink={`/account`} onClick={() => setShowPopover(false)}>{t('buttons.account')} <IonIcon icon={personCircleOutline} /></IonButton>
                                     <IonButton expand="block" color={'primary'} routerLink={`/reservations`} onClick={() => setShowPopover(false)}>{t('buttons.myReservations')} <IonIcon icon={ticketOutline} /></IonButton>
                                     {(role === UserRoles.Admin || role === UserRoles.Sales) && (
-                                        <IonButton expand="block" color={'primary'} routerLink={`/admin`} onClick={() => setShowPopover(false)}>Admin Panel <IonIcon icon={buildOutline} /></IonButton>
+                                        <IonButton expand="block" color={'primary'} routerLink={`/admin`} onClick={() => setShowPopover(false)}>{t('buttons.adminPanel')} <IonIcon icon={buildOutline} /></IonButton>
                                     )}
                                     <IonButton expand="block" color={'danger'} onClick={() => { handleLogout(); setShowPopover(false); }}>{t('buttons.logout')} <IonIcon icon={exitOutline} /></IonButton>
                                 </IonPopover>
@@ -130,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
                                     <IonButton expand="block" color={'primary'} routerLink={`/account`} onClick={() => setShowPopover(false)}>{t('buttons.account')} <IonIcon icon={personCircleOutline} /></IonButton>
                                     <IonButton expand="block" color={'primary'} routerLink={`/reservations`} onClick={() => setShowPopover(false)}>{t('buttons.myReservations')} <IonIcon icon={ticketOutline} /></IonButton>
                                     {(role === UserRoles.Admin || role === UserRoles.Sales) && (
-                                        <IonButton expand="block" color={'primary'} routerLink={`/admin`} onClick={() => setShowPopover(false)}>Admin Panel <IonIcon icon={buildOutline} /></IonButton>
+                                        <IonButton expand="block" color={'primary'} routerLink={`/admin`} onClick={() => setShowPopover(false)}>{t('buttons.adminPanel')} <IonIcon icon={buildOutline} /></IonButton>
                                     )}
                                     <IonButton expand="block" color={'danger'} onClick={() => { handleLogout(); setShowPopover(false); }}>{t('buttons.logout')} <IonIcon icon={exitOutline} /></IonButton>
                                 </IonPopover>

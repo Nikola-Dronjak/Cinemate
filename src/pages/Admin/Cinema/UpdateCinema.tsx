@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { saveOutline } from 'ionicons/icons';
 import { validateCinema } from './validateCinema';
@@ -27,6 +28,8 @@ const UpdateCinema: React.FC = () => {
         address?: string;
         city?: string
     }>({});
+
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         fetchCinema();
@@ -92,19 +95,19 @@ const UpdateCinema: React.FC = () => {
                         <IonCol size='12' sizeMd='8' sizeLg='6' sizeXl='4'>
                             <IonCard>
                                 <IonCardHeader>
-                                    <IonCardTitle>Update Cinema</IonCardTitle>
-                                    <IonCardSubtitle>Please update the cinema information</IonCardSubtitle>
+                                    <IonCardTitle>{t('cinema.updateCinema.title')}</IonCardTitle>
+                                    <IonCardSubtitle>{t('cinema.updateCinema.subtitle')}</IonCardSubtitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={updateCinema}>
-                                        <IonInput label='Name' type='text' placeholder='Name of the Cinema' labelPlacement='floating' fill='outline' clearInput={true} value={cinema.name} onIonInput={(e) => setCinema({ ...cinema, name: e.detail.value?.trim() || '' })} />
+                                        <IonInput label={t('inputs.labels.cinema.name')} type='text' placeholder={t('inputs.placeholders.cinema.name')} labelPlacement='floating' fill='outline' clearInput={true} value={cinema.name} onIonInput={(e) => setCinema({ ...cinema, name: e.detail.value?.trim() || '' })} />
                                         {validationErrors.name && <span style={{ color: 'red' }}>{validationErrors.name}</span>}
-                                        <IonInput className='ion-margin-top' label='Address' type='text' placeholder='Street address of the Cinema' labelPlacement='floating' fill='outline' clearInput={true} value={cinema.address} onIonInput={(e) => setCinema({ ...cinema, address: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.cinema.address')} type='text' placeholder={t('inputs.placeholders.cinema.address')} labelPlacement='floating' fill='outline' clearInput={true} value={cinema.address} onIonInput={(e) => setCinema({ ...cinema, address: e.detail.value?.trim() || '' })} />
                                         {validationErrors.address && <span style={{ color: 'red' }}>{validationErrors.address}</span>}
-                                        <IonInput className='ion-margin-top' label='City' type='text' placeholder='City in which the Cinema is located' labelPlacement='floating' fill='outline' clearInput={true} value={cinema.city} onIonInput={(e) => setCinema({ ...cinema, city: e.detail.value?.trim() || '' })} />
+                                        <IonInput className='ion-margin-top' label={t('inputs.labels.cinema.city')} type='text' placeholder={t('inputs.placeholders.cinema.city')} labelPlacement='floating' fill='outline' clearInput={true} value={cinema.city} onIonInput={(e) => setCinema({ ...cinema, city: e.detail.value?.trim() || '' })} />
                                         {validationErrors.city && <span style={{ color: 'red' }}>{validationErrors.city}</span>}
                                         <IonRow className='ion-justify-content-center'>
-                                            <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
+                                            <IonButton className='ion-margin-top' type='submit' color='primary'>{t('buttons.save')} <IonIcon icon={saveOutline} /></IonButton>
                                         </IonRow>
                                     </form>
                                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{

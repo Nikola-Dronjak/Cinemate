@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'ionicons/icons';
 import queryString from 'query-string';
@@ -29,6 +30,7 @@ const Movies: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         const { page: queryPage } = queryString.parse(location.search);
@@ -128,13 +130,13 @@ const Movies: React.FC = () => {
             {movies.length === 0 ? (
                 <IonContent className='ion-padding'>
                     <div className='ion-text-right'>
-                        <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>Add<IonIcon icon={addCircleOutline} /></IonButton>
+                        <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
                     </div >
-                    <p className='ion-padding ion-text-center'>There are no movies in the database right now.</p>
+                    <p className='ion-padding ion-text-center'>{t('movie.noMovies')}</p>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',
@@ -148,7 +150,7 @@ const Movies: React.FC = () => {
             ) : (
                 <IonContent className='ion-padding'>
                     <div className='ion-text-right'>
-                        <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>Add<IonIcon icon={addCircleOutline} /></IonButton>
+                        <IonButton routerLink='/admin/movies/add' fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
                     </div >
                     {movies.map(movie => (
                         <IonCard className='ion-padding' key={movie._id}>
@@ -157,15 +159,15 @@ const Movies: React.FC = () => {
                                 <IonCardSubtitle>{movie.director}, {movie.genre}, {Math.floor(movie.duration / 60)}h {movie.duration % 60}min</IonCardSubtitle>
                             </IonCardHeader>
 
-                            <IonButton routerLink={`/admin/movies/${movie._id}`} fill='solid' color={'primary'}>View <IonIcon icon={searchOutline} /></IonButton>
-                            <IonButton routerLink={`/admin/movies/update/${movie._id}`} fill='solid' color={'secondary'}>Edit <IonIcon icon={createOutline} /></IonButton>
-                            <IonButton onClick={() => deleteMovie(movie._id)} fill='solid' color={'danger'}>Remove <IonIcon icon={trashOutline} /></IonButton>
+                            <IonButton routerLink={`/admin/movies/${movie._id}`} fill='solid' color={'primary'}>{t('buttons.view')} <IonIcon icon={searchOutline} /></IonButton>
+                            <IonButton routerLink={`/admin/movies/update/${movie._id}`} fill='solid' color={'secondary'}>{t('buttons.edit')} <IonIcon icon={createOutline} /></IonButton>
+                            <IonButton onClick={() => deleteMovie(movie._id)} fill='solid' color={'danger'}>{t('buttons.remove')} <IonIcon icon={trashOutline} /></IonButton>
                         </IonCard>
                     ))}
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',

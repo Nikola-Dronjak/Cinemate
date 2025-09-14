@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonPage, IonSelect, IonSelectOption, IonToast, useIonViewWillEnter } from '@ionic/react';
 import { saveOutline, trashOutline } from 'ionicons/icons';
 import queryString from 'query-string';
@@ -26,6 +27,7 @@ const Users: React.FC = () => {
 
     const location = useLocation();
     const history = useHistory();
+    const { t } = useTranslation();
 
     useIonViewWillEnter(() => {
         const { page: queryPage } = queryString.parse(location.search);
@@ -153,11 +155,11 @@ const Users: React.FC = () => {
             </IonHeader>
             {users.length === 0 ? (
                 <IonContent className='ion-padding'>
-                    <p className='ion-padding ion-text-center'>There are no users in the database right now.</p>
+                    <p className='ion-padding ion-text-center'>{t('user.noUsers')}</p>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',
@@ -180,7 +182,7 @@ const Users: React.FC = () => {
                                     </IonCardHeader>
                                     <IonCardContent>
                                         <IonItem>
-                                            <IonLabel>Role</IonLabel>
+                                            <IonLabel>{t('user.role')}</IonLabel>
                                             <IonSelect value={userRole[user._id] ?? user.role} onIonChange={e => setUserRole(prev => ({ ...prev, [user._id]: e.detail.value }))}>
                                                 {Object.values(UserRoles).map(role => (
                                                     <IonSelectOption key={role} value={role}>
@@ -190,8 +192,8 @@ const Users: React.FC = () => {
                                             </IonSelect>
                                         </IonItem>
                                         <div className='ion-padding' style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
-                                            <IonButton onClick={() => changeUserRole(user._id)} color="success">Save <IonIcon icon={saveOutline} /></IonButton>
-                                            <IonButton onClick={() => deleteUser(user._id)} color="danger">Remove <IonIcon icon={trashOutline} /></IonButton>
+                                            <IonButton onClick={() => changeUserRole(user._id)} color="success">{t('buttons.save')} <IonIcon icon={saveOutline} /></IonButton>
+                                            <IonButton onClick={() => deleteUser(user._id)} color="danger">{t('buttons.remove')} <IonIcon icon={trashOutline} /></IonButton>
                                         </div>
                                     </IonCardContent>
                                 </IonCard>
@@ -199,9 +201,9 @@ const Users: React.FC = () => {
                         </IonList>
                     </IonCard>
                     <div className="ion-text-center">
-                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>Previous</IonButton>
-                        <span style={{ margin: '0 10px' }}>Page {page} of {totalPages}</span>
-                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>Next</IonButton>
+                        <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
+                        <span style={{ margin: '0 10px' }}>{t('pagination.info', { page, totalPages })}</span>
+                        <IonButton disabled={page >= totalPages} onClick={() => changePage(page + 1)}>{t('pagination.next')}</IonButton>
                     </div>
                     <IonToast isOpen={!!toast.message} message={toast.message} duration={3000} color={toast.color} onDidDismiss={() => setToast({ message: '', color: 'success' })} style={{
                         position: 'fixed',

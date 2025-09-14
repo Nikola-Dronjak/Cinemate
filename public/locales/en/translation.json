@@ -12,7 +12,32 @@
         "loginLink": "Sign in!"
     },
     "user": {
-        "title": "User information"
+        "role": "Role",
+        "title": "User information",
+        "noUsers": "There are no users in the database right now."
+    },
+    "cinema": {
+        "noCinemas": "There are no cinemas in the database right now.",
+        "addCinema": {
+            "title": "Add a new Cinema",
+            "subtitle": "Please enter the cinema information"
+        },
+        "updateCinema": {
+            "title": "Update Cinema",
+            "subtitle": "Please update the cinema information"
+        }
+    },
+    "hall": {
+        "capacity": "Capacity: {{numberOfSeats}} seats",
+        "noHalls": "This cinema doesnt have any halls right now.",
+        "addHall": {
+            "title": "Add a new Hall",
+            "subtitle": "Please enter the hall information"
+        },
+        "updateHall": {
+            "title": "Update Hall",
+            "subtitle": "Please update the hall information"
+        }
     },
     "movie": {
         "director": "Director: {{director}}",
@@ -20,14 +45,48 @@
         "duration": "Duration: {{hours}}h {{minutes}}min",
         "releaseDate": "Release date",
         "imdbRating": "IMDb rating",
-        "noMovies": "There are no movies in the database right now."
+        "noMovies": "There are no movies in the database right now.",
+        "addMovie": {
+            "title": "Add a new Movie",
+            "subtitle": "Please enter the movie information"
+        },
+        "updateMovie": {
+            "title": "Update Movie",
+            "subtitle": "Please update the movie information"
+        }
+    },
+    "genre": {
+        "action": "Action",
+        "animation": "Animation",
+        "comedy": "Comedy",
+        "crime": "Crime",
+        "drama": "Drama",
+        "thriller": "Thriller",
+        "horror": "Horror",
+        "romance": "Romance",
+        "western": "Western"
     },
     "screening": {
         "numberOfAvailableSeats": "Number of available seats",
         "price": "Price",
+        "seats": "Seats",
         "screeningsForMovie": "Screenings for {{movie}}",
         "screeningsForHall": "Screenings for {{hall}}",
-        "noScreenings": "There are no screenings for this movie right now."
+        "noScreeningsForMovie": "There are no screenings for this movie right now.",
+        "noScreeningsForHall": "There are no screenings in this hall right now.",
+        "addScreening": {
+            "title": "Add a new Screening",
+            "subtitle": "Please enter the screening information"
+        },
+        "updateScreening": {
+            "title": "Update Screening",
+            "subtitle": "Please update the screening information"
+        }
+    },
+    "discount": {
+        "header": "Add Discount",
+        "placeholder": "The discount amount (0-100%)",
+        "error": "Please enter a discount between 0 and 100."
     },
     "reservation": {
         "cinema": "Cinema",
@@ -39,13 +98,68 @@
     },
     "inputs": {
         "labels": {
-            "username": "Username",
-            "email": "Email",
-            "password": "Password"
+            "user": {
+                "username": "Username",
+                "email": "Email",
+                "password": "Password"
+            },
+            "cinema": {
+                "name": "Name",
+                "address": "Address",
+                "city": "City"
+            },
+            "hall": {
+                "name": "Name",
+                "numberOfSeats": "Number of Seats",
+                "cinema": "Cinema"
+            },
+            "movie": {
+                "title": "Title",
+                "director": "Director",
+                "genre": "Genre",
+                "description": "Description",
+                "releaseDate": "Release date",
+                "duration": "Duration",
+                "rating": "Rating",
+                "image": "Image"
+            },
+            "screening": {
+                "movie": "Movie",
+                "cinema": "Cinema",
+                "hall": "Hall",
+                "price": "Price"
+            }
         },
         "placeholders": {
-            "password": "Your password",
-            "newPassword": "New password"
+            "user": {
+                "password": "Your password",
+                "newPassword": "New password"
+            },
+            "cinema": {
+                "name": "Name of the Cinema",
+                "address": "Street address of the Cinema",
+                "city": "City in which the Cinema is located"
+            },
+            "hall": {
+                "name": "Name of the Hall",
+                "numberOfSeats": "Number of Seats in the Hall"
+            },
+            "movie": {
+                "title": "The title of the Movie",
+                "director": "The director of the Movie",
+                "genre": "The genre of the Movie",
+                "description": "The description of the Movie",
+                "releaseDate": "The release date of the Movie",
+                "duration": "The duration of the Movie in minutes",
+                "rating": "The rating of the Movie (1.0 - 10.0)",
+                "imageUrl": "Image URL"
+            },
+            "screening": {
+                "movie": "Select a Movie",
+                "cinema": "Select a Cinema",
+                "hall": "Select a Hall",
+                "price": "The price of the ticket for the movie screening in euros"
+            }
         }
     },
     "buttons": {
@@ -55,11 +169,15 @@
         "createAccount": "Create account",
         "account": "Account",
         "myReservations": "My Reservations",
+        "adminPanel": "Admin Panel",
         "logout": "Logout",
         "view": "View",
+        "add": "Add",
+        "edit": "Edit",
         "save": "Save",
         "remove": "Remove",
         "addReservation": "Add Reservation",
+        "addDiscount": "Add Discount",
         "cancel": "Cancel",
         "uploadProfilePicture": "Upload Profile Picture"
     },

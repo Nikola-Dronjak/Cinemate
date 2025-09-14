@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
+import { useTranslation } from "react-i18next";
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCol, IonContent, IonDatetime, IonGrid, IonHeader, IonIcon, IonInput, IonPage, IonRow, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
 import { saveOutline } from 'ionicons/icons';
 import { validateScreening } from './validateScreening';
@@ -80,6 +81,8 @@ const UpdateScreening: React.FC = () => {
 
     const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' }>({ message: '', color: 'success' });
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         fetchData();
@@ -272,8 +275,8 @@ const UpdateScreening: React.FC = () => {
                         <IonCol size='12' sizeMd='12' sizeLg='10' sizeXl='8'>
                             <IonCard>
                                 <IonCardHeader>
-                                    <IonCardTitle>Update Screening</IonCardTitle>
-                                    <IonCardSubtitle>Please update the screening information</IonCardSubtitle>
+                                    <IonCardTitle>{t('screening.updateScreening.title')}: {movie.title}</IonCardTitle>
+                                    <IonCardSubtitle>{t('screening.updateScreening.subtitle')}</IonCardSubtitle>
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <form onSubmit={updateScreening}>
@@ -282,8 +285,8 @@ const UpdateScreening: React.FC = () => {
                                                 <IonCol size='12' sizeMd='6'>
                                                     {movieId ? (
                                                         <>
-                                                            <IonInput label='Movie' type='text' labelPlacement='floating' fill='outline' disabled={true} value={movie.title} />
-                                                            <IonSelect className='ion-margin-top' label='Cinema' placeholder="Select Cinema" labelPlacement='floating' fill='outline' value={selectedCinema} onIonChange={(e) => setSelectedCinema(e.detail.value)}>
+                                                            <IonInput label={t('inputs.labels.screening.movie')} type='text' labelPlacement='floating' fill='outline' disabled={true} value={movie.title} />
+                                                            <IonSelect className='ion-margin-top' label={t('inputs.labels.screening.cinema')} placeholder={t('inputs.placeholders.screening.cinema')} labelPlacement='floating' fill='outline' value={selectedCinema} onIonChange={(e) => setSelectedCinema(e.detail.value)}>
                                                                 {cinemas.map(cinema => (
                                                                     <IonSelectOption key={cinema._id} value={cinema._id}>
                                                                         {cinema.name}
@@ -293,22 +296,22 @@ const UpdateScreening: React.FC = () => {
                                                             {validationErrors.cinema && <span style={{ color: 'red' }}>{validationErrors.cinema}</span>}
                                                             {selectedCinema && (
                                                                 <>
-                                                                    <IonSelect className='ion-margin-top' label='Hall' placeholder="Select Hall" labelPlacement='floating' fill='outline' value={screening.hallId} onIonChange={(e) => setScreening({ ...screening, hallId: e.detail.value })}>
+                                                                    <IonSelect className='ion-margin-top' label={t('inputs.labels.screening.hall')} placeholder={t('inputs.placeholders.screening.hall')} labelPlacement='floating' fill='outline' value={screening.hallId} onIonChange={(e) => setScreening({ ...screening, hallId: e.detail.value })}>
                                                                         {halls.map(hall => (
                                                                             <IonSelectOption key={hall._id} value={hall._id}>
-                                                                                {`${hall.name}, ${hall.numberOfSeats} seats`}
+                                                                                {`${hall.name}, ${hall.numberOfSeats} ${t('screening.seats')}`}
                                                                             </IonSelectOption>
                                                                         ))}
                                                                     </IonSelect>
                                                                     {validationErrors.hallId && <span style={{ color: 'red' }}>{validationErrors.hallId}</span>}
                                                                 </>
                                                             )}
-                                                            <IonInput className='ion-margin-top' label='Price' type='number' placeholder='The price of the ticket for the movie screening in euros' labelPlacement='floating' fill='outline' value={screening.basePriceEUR} onIonInput={(e) => setScreening({ ...screening, basePriceEUR: parseInt(e.detail.value!, 10) || 0 })} />
+                                                            <IonInput className='ion-margin-top' label={t('inputs.labels.screening.price')} type='number' placeholder={t('inputs.placeholders.screening.price')} labelPlacement='floating' fill='outline' value={screening.basePriceEUR} onIonInput={(e) => setScreening({ ...screening, basePriceEUR: parseInt(e.detail.value!, 10) || 0 })} />
                                                             {validationErrors.priceEUR && <span style={{ color: 'red' }}>{validationErrors.priceEUR}</span>}
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <IonSelect label='Movie' placeholder="Select Movie" labelPlacement='floating' fill='outline' value={screening.movieId} onIonChange={(e) => setScreening({ ...screening, movieId: e.detail.value })}>
+                                                            <IonSelect label={t('inputs.labels.screening.movie')} placeholder={t('inputs.placeholders.screening.movie')} labelPlacement='floating' fill='outline' value={screening.movieId} onIonChange={(e) => setScreening({ ...screening, movieId: e.detail.value })}>
                                                                 {movies.map(movie => (
                                                                     <IonSelectOption key={movie._id} value={movie._id}>
                                                                         {movie.title}
@@ -316,8 +319,8 @@ const UpdateScreening: React.FC = () => {
                                                                 ))}
                                                             </IonSelect>
                                                             {validationErrors.movieId && <span style={{ color: 'red' }}>{validationErrors.movieId}</span>}
-                                                            <IonInput className='ion-margin-top' label='Hall' type='text' labelPlacement='floating' fill='outline' disabled={true} value={`${hall.name}, ${hall.numberOfSeats} seats`} />
-                                                            <IonInput className='ion-margin-top' label='Price' type='number' placeholder='The price of the ticket for the movie screening in euros' labelPlacement='floating' fill='outline' value={screening.basePriceEUR} onIonInput={(e) => setScreening({ ...screening, basePriceEUR: parseInt(e.detail.value!, 10) || 0 })} />
+                                                            <IonInput className='ion-margin-top' label={t('inputs.labels.screening.hall')} type='text' labelPlacement='floating' fill='outline' disabled={true} value={`${hall.name}, ${hall.numberOfSeats} ${t('screening.seats')}`} />
+                                                            <IonInput className='ion-margin-top' label={t('inputs.labels.screening.price')} type='number' placeholder={t('inputs.placeholders.screening.price')} labelPlacement='floating' fill='outline' value={screening.basePriceEUR} onIonInput={(e) => setScreening({ ...screening, basePriceEUR: parseInt(e.detail.value!, 10) || 0 })} />
                                                             {validationErrors.priceEUR && <span style={{ color: 'red' }}>{validationErrors.priceEUR}</span>}
                                                         </>
                                                     )}
@@ -337,7 +340,7 @@ const UpdateScreening: React.FC = () => {
                                                 </IonCol>
                                             </IonRow>
                                             <IonRow className='ion-justify-content-center'>
-                                                <IonButton className='ion-margin-top' type='submit' color='primary'>Save <IonIcon icon={saveOutline} /></IonButton>
+                                                <IonButton className='ion-margin-top' type='submit' color='primary'>{t('buttons.save')} <IonIcon icon={saveOutline} /></IonButton>
                                             </IonRow>
                                         </IonGrid>
                                     </form>

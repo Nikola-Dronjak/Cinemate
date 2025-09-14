@@ -267,7 +267,7 @@ const MovieDetails: React.FC = () => {
                             <IonCardTitle>{t('screening.screeningsForMovie', { movie: movie.title })}</IonCardTitle>
                         </IonCardHeader>
                         <IonCardContent className='ion-padding'>
-                            <p className='ion-padding ion-text-center'>{t('screening.noScreenings')}</p>
+                            <p className='ion-padding ion-text-center'>{t('screening.noScreeningsForMovie')}</p>
                         </IonCardContent>
                         <div className="ion-text-center">
                             <IonButton disabled={page <= 1} onClick={() => changePage(page - 1)}>{t('pagination.previous')}</IonButton>
