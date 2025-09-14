@@ -49,7 +49,7 @@ const Admin: React.FC = () => {
             routes: (
                 <>
                     <Route exact path="/admin/cinemas" component={Cinemas} />
-                    <Route exact path="/admin/cinemas/:cinemaId" component={Halls} />
+                    <Route exact path="/admin/cinemas/:cinemaId([0-9a-fA-F]{24})" component={Halls} />
                     <Route exact path="/admin/cinemas/add" component={AddCinema} />
                     <Route exact path="/admin/cinemas/update/:cinemaId" component={UpdateCinema} />
 
@@ -58,7 +58,7 @@ const Admin: React.FC = () => {
                     <Route exact path="/admin/halls/update/:hallId" component={UpdateHall} />
 
                     <Route exact path="/admin/movies" component={Movies} />
-                    <Route exact path="/admin/movies/:movieId" component={Movie} />
+                    <Route exact path="/admin/movies/:movieId([0-9a-fA-F]{24})" component={Movie} />
                     <Route exact path="/admin/movies/add" component={AddMovie} />
                     <Route exact path="/admin/movies/update/:movieId" component={UpdateMovie} />
 
@@ -85,7 +85,7 @@ const Admin: React.FC = () => {
                     <Route exact path="/admin/halls/:hallId" component={Hall} />
 
                     <Route exact path="/admin/movies" component={Movies} />
-                    <Route exact path="/admin/movies/:movieId" component={Movie} />
+                    <Route exact path="/admin/movies/:movieId([0-9a-fA-F]{24})" component={Movie} />
                     <Route exact path="/admin/movies/add" component={AddMovie} />
                     <Route exact path="/admin/movies/update/:movieId" component={UpdateMovie} />
 

@@ -6,6 +6,7 @@ import { addCircleOutline, createOutline, searchOutline, trashOutline } from 'io
 import queryString from 'query-string';
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
+import { UserRoles } from '../../../enums/UserRoles';
 
 interface Cinema {
     _id: string;
@@ -161,7 +162,9 @@ const Halls: React.FC = () => {
                         <IonToolbar>
                             <IonCardTitle>{cinema.name}</IonCardTitle>
                             <IonButtons slot="end">
-                                <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                                {(role === UserRoles.Admin) && (
+                                    <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                                )}
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>
@@ -190,7 +193,9 @@ const Halls: React.FC = () => {
                         <IonToolbar>
                             <IonCardTitle>{cinema.name}</IonCardTitle>
                             <IonButtons slot="end">
-                                <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                                {(role === UserRoles.Admin) && (
+                                    <IonButton routerLink={`/admin/halls/add/${cinemaId}`} fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                                )}
                             </IonButtons>
                         </IonToolbar>
                         <IonCardContent>

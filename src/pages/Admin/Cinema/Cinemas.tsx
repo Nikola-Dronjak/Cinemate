@@ -6,6 +6,7 @@ import { addCircleOutline, createOutline, pinOutline, searchOutline, trashOutlin
 import queryString from 'query-string';
 import Header from '../../../components/Header';
 import axios from '../../../api/AxiosInstance';
+import { UserRoles } from '../../../enums/UserRoles';
 
 interface Cinema {
     _id: string;
@@ -130,7 +131,9 @@ const Cinemas: React.FC = () => {
             {cinemas.length === 0 ? (
                 <IonContent className='ion-padding'>
                     <div className='ion-text-right'>
-                        <IonButton routerLink='/admin/cinemas/add' fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                        {(role === UserRoles.Admin) && (
+                            <IonButton routerLink='/admin/cinemas/add' fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                        )}
                     </div>
                     <p className='ion-padding ion-text-center'>{t('cinema.noCinemas')}</p>
                     <div className="ion-text-center">
@@ -150,7 +153,9 @@ const Cinemas: React.FC = () => {
             ) : (
                 <IonContent className='ion-padding'>
                     <div className='ion-text-right'>
-                        <IonButton routerLink='/admin/cinemas/add' fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                        {(role === UserRoles.Admin) && (
+                            <IonButton routerLink='/admin/cinemas/add' fill='solid' color={'success'}>{t('buttons.add')} <IonIcon icon={addCircleOutline} /></IonButton>
+                        )}
                     </div>
                     {cinemas.map(cinema => (
                         <IonCard className='ion-padding' key={cinema._id}>
